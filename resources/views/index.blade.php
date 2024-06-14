@@ -1,3 +1,5 @@
+<!-- resources/views/index.blade.php -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,8 +32,8 @@
                                 <a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="{{ route('logout') }}"
-                                   onclick="event.preventDefault();
-                                             document.getElementById('logout-form').submit();">
+                                onclick="event.preventDefault();
+                                            document.getElementById('logout-form').submit();">
                                     Log Out
                                 </a>
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
@@ -59,33 +61,36 @@
             <h1>Basics</h1>
         </div>
         <div class="card-container">
-            @php
-                $categories = [
-                    ['title' => 'Animals', 'description' => 'Learn: dog, cat, bear, lion,...', 'image' => 'url_to_image1', 'slug' => 'animals', 'pointsRequired' => 0],
-                    ['title' => 'Food', 'description' => 'Learn: bread, milk, pasta,...', 'image' => 'url_to_image2', 'slug' => 'food', 'pointsRequired' => 150],
-                    ['title' => 'Clothes', 'description' => 'Learn: dress, shirt, hat,...', 'image' => 'url_to_image3', 'slug' => 'clothes', 'pointsRequired' => 200],
-                    // Tambahkan kategori lain di sini
-                ];
-            @endphp
-
             @foreach ($categories as $category)
-                @if (Auth::check() && Auth::user()->points >= $category['pointsRequired'])
+                @php
+                    $pointsRequired = $category->required_points;
+                @endphp
+
+                @if (Auth::check() && Auth::user()->unlockedCategories->contains($category->id))
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">{{ $category['title'] }}</h5>
-                            <p class="card-text">{{ $category['description'] }}</p>
-                            <a href="{{ route('grammar.quiz', ['category' => strtolower($category['slug'])]) }}" class="btn btn-primary" aria-label="Learn">Learn</a>
+                            <h5 class="card-title">{{ $category->title }}</h5>
+                            <p class="card-text">{{ $category->description }}</p>
+                            <a href="{{ route('grammar.quiz.showQuestion', ['category' => $category->slug, 'questionIndex' => 1]) }}" class="btn btn-primary" aria-label="Learn">Learn</a>
                         </div>
                     </div>
                 @else
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">{{ $category['title'] }}</h5>
-                            <p class="card-text">{{ $category['description'] }}</p>
+                            <h5 class="card-title">{{ $category->title }}</h5>
+                            <p class="card-text">{{ $category->description }}</p>
                             @if (Auth::check())
-                                <button class="btn btn-secondary" disabled aria-label="Locked">Locked (Requires {{ $category['pointsRequired'] }} points)</button>
+                                @if (Auth::user()->points >= $pointsRequired)
+                                    <form action="{{ route('unlock.category') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="category" value="{{ $category->slug }}">
+                                        <button type="submit" class="btn btn-warning" aria-label="Unlock">Unlock ({{ $pointsRequired }} points)</button>
+                                    </form>
+                                @else
+                                    <button class="btn btn-secondary" disabled aria-label="Locked">Locked (Requires {{ $pointsRequired }} points)</button>
+                                @endif
                             @else
-                                <button class="btn btn-secondary" disabled aria-label="Locked">Locked (Requires {{ $category['pointsRequired'] }} points - Please log in)</button>
+                                <button class="btn btn-secondary" disabled aria-label="Locked">Locked (Requires {{ $pointsRequired }} points - Please log in)</button>
                             @endif
                         </div>
                     </div>
@@ -93,8 +98,48 @@
             @endforeach
         </div>
     </div>
+    <!-- Modal for Confirmation -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Unlock Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to unlock this category? This will cost <span id="pointsRequired"></span> points.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmUnlockBtn">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="unlockCategoryForm" method="POST" style="display: none;">
+        @csrf
+    </form>
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.unlock-category-btn').click(function() {
+                var categorySlug = $(this).data('category');
+                var pointsRequired = $(this).data('points-required');
+                $('#pointsRequired').text(pointsRequired);
+                $('#confirmationModal').data('category', categorySlug).modal('show');
+            });
+
+            $('#confirmUnlockBtn').click(function() {
+                var categorySlug = $('#confirmationModal').data('category');
+                $('#unlockCategoryForm').attr('action', '/confirm-open-quiz/' + categorySlug).submit();
+            });
+        });
+    </script>
 </body>
 </html>

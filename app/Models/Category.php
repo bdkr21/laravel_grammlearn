@@ -11,7 +11,7 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'description', 'required_points','slug'];
+    protected $fillable = ['title', 'description', 'pointsRequired','slug'];
 
     public function questions()
     {
@@ -20,7 +20,9 @@ class Category extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'user_categories');
+        // return $this->belongsToMany(User::class, 'user_categories');
+        return $this->belongsToMany(User::class, 'user_unlocked_categories');
+
     }
 }
 
