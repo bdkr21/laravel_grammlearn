@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class GrammarController extends Controller
 {
@@ -168,6 +169,13 @@ class GrammarController extends Controller
         $user->points += $score;
         $user->save();
 
+        // Pemeriksaan grammar menggunakan GrammarBot API
+        $grammarResults = [];
+        foreach ($answers as $index => $answer) {
+            $response = $this->checkGrammar($answer);
+            $grammarResults[$index] = json_decode($response, true);
+        }
+
         \Log::info('Calculated Score:', ['score' => $score, 'answers' => $answers]);
 
         return view('quiz_result', [
@@ -176,7 +184,8 @@ class GrammarController extends Controller
             'totalQuestions' => $questions->count(),
             'score' => $score,
             'points' => $score,
-            'answers' => $answers
+            'answers' => $answers,
+            'grammarResults' => $grammarResults,
         ]);
     }
 
@@ -188,6 +197,13 @@ class GrammarController extends Controller
 
         $score = $this->calculateScore($answers, $questions);
 
+        // Pemeriksaan grammar menggunakan GrammarBot API
+        $grammarResults = [];
+        foreach ($answers as $index => $answer) {
+            $response = $this->checkGrammar($answer);
+            $grammarResults[$index] = json_decode($response, true);
+        }
+
         \Log::info('Calculated Score:', ['score' => $score, 'answers' => $answers]);
 
         return view('grammar.quiz_result', [
@@ -196,6 +212,7 @@ class GrammarController extends Controller
             'questions' => $questions,
             'totalQuestions' => $questions->count(),
             'answers' => $answers,
+            'grammarResults' => $grammarResults,
         ]);
     }
 
@@ -215,5 +232,19 @@ class GrammarController extends Controller
         }
 
         return $score;
+    }
+
+    protected function checkGrammar($text)
+    {
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'x-rapidapi-host' => 'grammarbot-neural.p.rapidapi.com',
+            'x-rapidapi-key' => 'b6c4337eb6msh87cbb3d9555152cp132e22jsn38e19558df62'
+        ])->post('https://grammarbot-neural.p.rapidapi.com/v1/check', [
+            'text' => $text,
+            'lang' => 'en'
+        ]);
+
+        return $response->body();
     }
 }

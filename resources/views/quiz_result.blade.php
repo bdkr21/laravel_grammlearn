@@ -31,6 +31,14 @@
                             <p>{{ $question->question }}</p>
                             <p><strong>Correct Answer:</strong> {{ $question->answer }}</p>
                             <p><strong>Your Answer:</strong> {{ $answers[$index] ?? 'Not answered' }}</p>
+                            @if (isset($grammarResults[$index]) && isset($grammarResults[$index]['matches']))
+                                <p><strong>GrammarBot Suggestions:</strong></p>
+                                <ul>
+                                    @foreach ($grammarResults[$index]['matches'] as $match)
+                                        <li>{{ $match['message'] }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
                         </li>
                     @endforeach
                 </ul>
