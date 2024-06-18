@@ -11,15 +11,16 @@
         <div class="text-center my-4">
             <h1>{{ ucfirst($category->title) }} Quiz</h1>
             <p>Question {{ $currentQuestionIndex }} of {{ $totalQuestions }}</p>
+            <p>Perbaiki soal Grammar dibawah ini:</p>
         </div>
         <form action="{{ route('grammar.quiz.submitAnswer', ['category' => $category->slug, 'questionIndex' => $currentQuestionIndex]) }}" method="POST">
             @csrf
             <div class="form-group">
-                <label>{{ $question->question }}</label>
+                <div class="text-center"><label>{{ $question->question }}</label><div>
                 <input type="text" name="answer" class="form-control" required>
             </div>
             <input type="hidden" name="currentQuestionIndex" value="{{ $currentQuestionIndex }}">
-
+            <br>
             @if ($currentQuestionIndex < $totalQuestions)
                 <button type="submit" class="btn btn-primary">Next</button>
             @else

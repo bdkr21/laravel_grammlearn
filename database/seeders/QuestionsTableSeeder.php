@@ -1,238 +1,210 @@
-<?
+<?php
 
-namespace App\Http\Controllers;
+namespace Database\Seeders;
 
-use Illuminate\Http\Request;
-use App\Models\Category;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
-class GrammarController extends Controller
+class QuestionsTableSeeder extends Seeder
 {
-    public function index()
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
     {
-        $categories = Category::all();
-        return view('index', compact('categories'));
-    }
+        DB::table('questions')->insert([
+            // Adjectives
+            [
+                'category_id' => '18',
+                'question' => 'She is a very happiest girl in the class.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '18',
+                'question' => 'The dog is more friendlier than the cat.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '18',
+                'question' => 'This is the most simplest method to solve the problem..',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '18',
+                'question' => 'He is a more smarter student than his brother.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '18',
+                'question' => 'Of the two options, the first one is the bestest.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            // Adverbs
+            [
+                'category_id' => '19',
+                'question' => 'She sings very beautiful.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '19',
+                'question' => 'He runs quick to catch the bus.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '19',
+                'question' => 'They work hard every day, but they work more hard on Fridays.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '19',
+                'question' => 'She speaks English very good.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '19',
+                'question' => 'He did the task very careful.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
 
-    public function startQuiz($categorySlug)
-    {
-        $category = Category::where('slug', $categorySlug)->firstOrFail();
-        $user = Auth::user();
+            // Comparative Adjective Phrases
+            [
+                'category_id' => '20',
+                'question' => 'My car is more faster than yours.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '20',
+                'question' => 'This cake is more deliciouser than the one you made last week.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '20',
+                'question' => 'Her dress is more prettier than mine.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '20',
+                'question' => 'He is more taller than his brother.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '20',
+                'question' => 'This puzzle is more easier than the last one.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
 
-        if (!$user->unlockedCategories->contains($category->id)) {
-            if ($user->points < $category->required_points) {
-                return redirect()->back()->with('error', 'You do not have enough points to unlock this category.');
-            }
+            // Comparatives and Superlatives
+            [
+                'category_id' => '21',
+                'question' => 'She is the most happiest person I know.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '21',
+                'question' => 'Of the three brothers, Jack is the taller.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '21',
+                'question' => 'This restaurant is the most best in town.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '21',
+                'question' => 'She is the goodest student in her class.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '21',
+                'question' => 'This is the more important issue we need to discuss.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
 
-            return view('confirm_open_quiz', compact('category'));
-        }
+            // Comparing Quality
+            [
+                'category_id' => '22',
+                'question' => 'This phone is gooder than that one.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '22',
+                'question' => 'Her performance was more better than mine.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '22',
+                'question' => 'The new model is more efficienter than the old one.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '22',
+                'question' => 'This fabric feels more softer than the other one.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '22',
+                'question' => 'Of all the paintings, I like this one the bestest.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
 
-        return redirect()->route('grammar.quiz.showQuestion', [
-            'category' => $categorySlug,
-            'questionIndex' => 1
+            // Comparing Quantity
+            [
+                'category_id' => '23',
+                'question' => 'She has more books than me.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '23',
+                'question' => 'There are less people here than expected.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '23',
+                'question' => 'He spent fewer money than his friend.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '23',
+                'question' => 'I have much homework to do tonight.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'category_id' => '23',
+                'question' => 'She ate less cookies than her brother.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
-    }
-
-    public function showQuestion($categorySlug, $questionIndex)
-    {
-        $category = $this->getCategoryBySlug($categorySlug);
-        $question = $category->questions()->skip($questionIndex - 1)->first();
-
-        return view('quiz', [
-            'category' => $category,
-            'currentQuestionIndex' => $questionIndex,
-            'totalQuestions' => $category->questions()->count(),
-            'question' => $question
-        ]);
-    }
-
-    public function unlockCategory(Request $request)
-    {
-        $user = Auth::user();
-        $categorySlug = $request->input('category');
-        $category = Category::where('slug', $categorySlug)->first();
-
-        if ($user && $category && $user->points >= $category->required_points) {
-            $user->points -= $category->required_points;
-            $user->save();
-            $user->unlockedCategories()->attach($category->id);
-
-            return redirect()->route('grammar.quiz.showQuestion', [
-                'category' => $categorySlug,
-                'questionIndex' => 1
-            ])->with('success', 'Category unlocked successfully.');
-        } else {
-            return redirect()->back()->with('error', 'Not enough points to unlock this category.');
-        }
-    }
-
-    public function nextQuestion(Request $request, $categorySlug)
-    {
-        $category = $this->getCategoryBySlug($categorySlug);
-        $currentQuestionIndex = $request->input('currentQuestionIndex');
-        $answers = $request->session()->get('answers', []);
-        $answers[$currentQuestionIndex] = $request->input('answer');
-        $request->session()->put('answers', $answers);
-
-        $nextQuestionIndex = $currentQuestionIndex + 1;
-        $totalQuestions = $category->questions()->count();
-
-        if ($nextQuestionIndex > $totalQuestions) {
-            $score = $this->calculateScore($request, $category->questions);
-            return redirect()->route('grammar.quiz.result', ['category' => $categorySlug, 'score' => $score]);
-        }
-
-        $question = $category->questions()->skip($nextQuestionIndex - 1)->first();
-
-        return view('grammar.quiz', [
-            'category' => $category,
-            'question' => $question,
-            'totalQuestions' => $totalQuestions,
-            'currentQuestionIndex' => $nextQuestionIndex,
-        ]);
-    }
-
-    public function previousQuestion($categorySlug, $questionIndex)
-    {
-        return redirect()->route('grammar.quiz.showQuestion', ['category' => $categorySlug, 'questionIndex' => $questionIndex - 1]);
-    }
-
-    public function submitQuiz(Request $request, $categorySlug)
-    {
-        $category = $this->getCategoryBySlug($categorySlug);
-        $questions = $category->questions;
-        $answers = $request->session()->get('answers', []);
-
-        $score = $this->calculateScore($answers, $questions);
-
-        return view('grammar.quiz_result', [
-            'category' => $category,
-            'score' => $score,
-            'questions' => $questions,
-            'totalQuestions' => $questions->count(),
-            'answers' => $answers,
-        ]);
-    }
-
-    public function confirmOpenQuiz($categorySlug)
-    {
-        $category = Category::where('slug', $categorySlug)->firstOrFail();
-        $user = Auth::user();
-
-        if ($user->points < $category->required_points) {
-            return redirect()->back()->with('error', 'You do not have enough points to unlock this category.');
-        }
-
-        $user->points -= $category->required_points;
-        $user->save();
-
-        $user->unlockedCategories()->attach($category->id);
-
-        return redirect()->route('grammar.quiz.showQuestion', [
-            'category' => $categorySlug,
-            'questionIndex' => 1
-        ]);
-    }
-
-    public function submitAnswer(Request $request, $categorySlug, $questionIndex)
-    {
-        $category = $this->getCategoryBySlug($categorySlug);
-        $totalQuestions = $category->questions()->count();
-        $answers = $request->session()->get('answers', []);
-        $answers[$questionIndex - 1] = $request->input('answer');
-        $request->session()->put('answers', $answers);
-
-        \Log::info('Answers:', $answers);
-
-        if ($questionIndex < $totalQuestions) {
-            return redirect()->route('grammar.quiz.showQuestion', ['category' => $categorySlug, 'questionIndex' => $questionIndex + 1]);
-        } else {
-            return redirect()->route('grammar.quiz.completeQuiz', ['category' => $categorySlug]);
-        }
-    }
-
-    public function completeQuiz($categorySlug)
-    {
-        $category = $this->getCategoryBySlug($categorySlug);
-        $questions = $category->questions;
-        $answers = session('answers', []);
-
-        \Log::info('Answers at completeQuiz:', $answers);
-
-        $score = $this->calculateScore($answers, $questions);
-        $user = Auth::user();
-        $user->points += $score;
-        $user->save();
-
-        \Log::info('Calculated Score:', ['score' => $score, 'answers' => $answers]);
-
-        return view('quiz_result', [
-            'category' => $category,
-            'questions' => $questions,
-            'totalQuestions' => $questions->count(),
-            'score' => $score,
-            'points' => $score,
-            'answers' => $answers
-        ]);
-    }
-
-    public function quizResult(Request $request, $categorySlug)
-    {
-        $category = $this->getCategoryBySlug($categorySlug);
-        $questions = $category->questions;
-        $answers = $request->session()->get('answers', []);
-
-        $score = $this->calculateScore($answers, $questions);
-
-        // Memeriksa grammar dari jawaban yang diberikan
-        $grammarResults = [];
-        foreach ($answers as $index => $answer) {
-            $response = $this->checkGrammar($answer);
-            $grammarResults[$index] = $response;
-        }
-
-        \Log::info('Calculated Score:', ['score' => $score, 'answers' => $answers, 'grammarResults' => $grammarResults]);
-
-        return view('grammar.quiz_result', [
-            'category' => $category,
-            'score' => $score,
-            'questions' => $questions,
-            'totalQuestions' => $questions->count(),
-            'answers' => $answers,
-            'grammarResults' => $grammarResults
-        ]);
-    }
-
-    protected function getCategoryBySlug($slug)
-    {
-        return Category::where('slug', $slug)->firstOrFail();
-    }
-
-    protected function calculateScore($answers, $questions)
-    {
-        $score = 0;
-
-        foreach ($questions as $index => $question) {
-            if (isset($answers[$index]) && $answers[$index] == $question->answer) {
-                $score++;
-            }
-        }
-
-        return $score;
-    }
-
-    protected function checkGrammar($text)
-    {
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'x-rapidapi-host' => 'grammarbot-neural.p.rapidapi.com',
-            'x-rapidapi-key' => env('RAPIDAPI_KEY'),
-        ])->post('https://grammarbot-neural.p.rapidapi.com/v1/check', [
-            'text' => $text,
-            'lang' => 'en',
-        ]);
-
-        return $response->json();
     }
 }
