@@ -15,7 +15,7 @@
         </div>
         <div class="text-center">
             <a href="{{ route('grammar.quiz.confirmOpen', ['category' => $category->slug]) }}" class="btn btn-primary">Confirm</a>
-            <a href="{{ route('home') }}" class="btn btn-secondary">Cancel</a>
+            <a href="{{ route('quiz') }}" class="btn btn-secondary">Cancel</a>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

@@ -11,7 +11,8 @@
         <div class="text-center my-4">
             <h1>{{ ucfirst($category->title) }} Quiz Result</h1>
             <p>Your Score: {{ $score }} / {{ $totalQuestions }}</p>
-            {{-- <p>You earned {{ $points }} points</p> --}}
+            <p>You earned {{ $score }} points</p>
+            <p>Total Points: {{ $points }}</p>
         </div>
         <div class="my-4">
             @foreach($questions as $index => $question)
@@ -27,7 +28,7 @@
             @endforeach
         </div>
         <div class="text-center my-4">
-            <a href="{{ route('home') }}" class="btn btn-secondary" aria-label="Home">Home</a>
+            <a href="{{ route('quiz') }}" class="btn btn-secondary" aria-label="Home">Home</a>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

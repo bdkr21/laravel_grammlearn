@@ -57,4 +57,14 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    public function dashboard(Request $request): View
+    {
+        $user = Auth::user();
+        $points = $user->points;
+        $unlockedCategories = $user->unlockedCategories;
+        $unlockedCategoriesCount = $user->unlockedCategories()->count();
+
+        return view('dashboard', compact('points', 'unlockedCategoriesCount', 'unlockedCategories'));
+    }
 }

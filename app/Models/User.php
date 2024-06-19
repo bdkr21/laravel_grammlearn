@@ -48,18 +48,16 @@ class User extends Authenticatable
     /**
      * The categories that belong to the user.
      */
-    public function categories(): BelongsToMany
-    {
-        return $this->belongsToMany(Category::class, 'user_categories')->withTimestamps();
-    }
+    // public function categories(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(Category::class, 'user_categories')->withTimestamps();
+    // }
 
     /**
      * The unlocked categories that belong to the user.
      */
     public function unlockedCategories()
     {
-        // return $this->belongsToMany(Category::class, 'user_category_unlocks', 'user_id', 'category_id');
         return $this->belongsToMany(Category::class, 'user_unlocked_categories', 'user_id', 'category_id');
-
     }
 }

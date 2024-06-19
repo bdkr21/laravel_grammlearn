@@ -33,7 +33,7 @@
             </form>
         @endif
         <div class="text-center my-4">
-            <a href="{{ route('home') }}" class="btn btn-secondary" aria-label="Home">Home</a>
+            <a href="{{ route('quiz') }}" class="btn btn-secondary" aria-label="Home">Home</a>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
