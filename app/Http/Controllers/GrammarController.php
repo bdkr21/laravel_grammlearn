@@ -22,16 +22,27 @@ class GrammarController extends Controller
         return view('index', compact('categories'));
     }
 
+    public function startQuiz($categorySlug)
+    {
+        $category = $this->getCategoryBySlug($categorySlug);
+        return redirect()->route('grammar.quiz.showQuestion', [
+            'category' => $categorySlug,
+            'questionIndex' => 1
+        ]);
+    }
+
     public function showQuestion($categorySlug, $questionIndex)
     {
         $category = $this->getCategoryBySlug($categorySlug);
         $question = $category->questions()->skip($questionIndex - 1)->first();
+        $answers = session()->get('answers', []);
 
         return view('quiz', [
             'category' => $category,
             'currentQuestionIndex' => $questionIndex,
             'totalQuestions' => $category->questions()->count(),
-            'question' => $question
+            'question' => $question,
+            'answers' => $answers
         ]);
     }
 
@@ -139,6 +150,9 @@ class GrammarController extends Controller
             } else {
                 $messages[$index] = 'Salah';
             }
+
+            // Add correct answer to question object for the view
+            $question->correct_answer = $correctedAnswer;
         }
 
         $user = Auth::user();
@@ -154,8 +168,9 @@ class GrammarController extends Controller
             'answers' => $answers,
             'grammarResults' => $correctedAnswers,
             'messages' => $messages,
-        ]);
+        ])->with('pointsEarned', $score);
     }
+
 
     public function quizResult(Request $request, $categorySlug)
     {

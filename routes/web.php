@@ -1,15 +1,27 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GrammarController;
 use App\Http\Controllers\MateriController;
+use App\Http\Controllers\DailyMissionController;
 
-Route::get('/', [MateriController::class, 'index'])->name('home');
+
+Route::get('/', [LandingPageController::class, 'index'])->name('home');
+Route::get('/materi', [MateriController::class, 'index'])->name('materi');
 Route::get('/materi/{topic}', [MateriController::class, 'show'])->name('materi.show');
 
+Route::get('/daily-mission', [DailyMissionController::class, 'index'])->name('daily');
+
+// Daily mission quiz routes
+Route::get('/daily-mission/quiz', [DailyMissionController::class, 'startQuiz'])->name('daily.quiz.start');
+Route::get('/daily-mission/quiz/question/{questionIndex}', [DailyMissionController::class, 'showQuestion'])->name('daily.quiz.showQuestion');
+Route::post('/daily-mission/quiz/question/{questionIndex}/submit', [DailyMissionController::class, 'submitAnswer'])->name('daily.quiz.submitAnswer');
+Route::get('/daily-mission/quiz/complete', [DailyMissionController::class, 'completeQuiz'])->name('daily.quiz.completeQuiz');
+
 Route::get('/quiz', [GrammarController::class, 'index'])->name('quiz');
-Route::get('/quiz/{category}', [GrammarController::class, 'startQuiz'])->name('grammar.quiz');
+Route::get('/quiz/{category}', [GrammarController::class, 'startQuiz'])->name('grammar.quiz.start');
 Route::post('/confirm-open-quiz/{category}', [GrammarController::class, 'confirmOpenQuiz'])->name('confirm.open.quiz');
 Route::get('/quiz/{category}/question/{questionIndex}', [GrammarController::class, 'showQuestion'])->name('grammar.quiz.showQuestion');
 Route::post('/quiz/{category}/question/{questionIndex}/submit', [GrammarController::class, 'submitAnswer'])->name('grammar.quiz.submitAnswer');

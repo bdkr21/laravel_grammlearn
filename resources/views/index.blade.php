@@ -38,7 +38,7 @@
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
-        <a class="navbar-brand" href="#">Grammlearn</a>
+        <a class="navbar-brand" href="{{ url('/') }}">Grammlearn</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -46,9 +46,12 @@
             @if (Route::has('login'))
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/') }}">materi</a>
+                        <a class="nav-link" href="{{ url('/materi') }}">materi</a>
                     </li>
                     @auth
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('/daily-mission/quiz') }}">Daily Mission</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url('/dashboard') }}">Dashboard</a>
                         </li>
