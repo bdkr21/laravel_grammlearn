@@ -1,4 +1,3 @@
-<!-- quiz_result.blade.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +20,8 @@
                         <h5 class="card-title">Question {{ $index + 1 }}</h5>
                         <p class="card-text">{{ $question->question }}</p>
                         <p>Your Answer: {{ isset($answers[$index]) ? $answers[$index] : 'N/A' }}</p>
-                        <p>Correct Answer: {{ isset($grammarResults[$index]) ? $grammarResults[$index] : 'N/A' }}</p>
+                        <p>Corrected Answer: {{ isset($grammarResults[$index]) ? $grammarResults[$index] : 'N/A' }}</p>
+                        <p>Result: {{ isset($messages[$index]) ? $messages[$index] : 'N/A' }}</p>
                     </div>
                 </div>
             @endforeach

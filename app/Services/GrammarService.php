@@ -11,7 +11,7 @@ class GrammarService
     {
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-            'x-rapidapi-key' => '9910a6a4demsh7b347ede676a635p116e34jsn97127ab1454a',  // Ensure this is your actual API key
+            'x-rapidapi-key' => 'cac86ee80fmsh26da357e8a4226ap11bf7djsnf1b28e8f69ec',  // Ensure this is your actual API key
             'x-rapidapi-host' => 'grammarbot-neural.p.rapidapi.com',
         ])->post('https://grammarbot-neural.p.rapidapi.com/v1/check', [
             'text' => $text,

@@ -107,10 +107,15 @@ class GrammarController extends Controller
         $request->session()->put('answers', $answers);
         $request->session()->put('corrected_answers', [$questionIndex - 1 => $correctedAnswer]);
 
+        // Compare the user's answer with the corrected answer
+        $message = $userAnswer === $correctedAnswer ? 'OK' : 'Salah';
+
         if ($questionIndex < $totalQuestions) {
-            return redirect()->route('grammar.quiz.showQuestion', ['category' => $categorySlug, 'questionIndex' => $questionIndex + 1]);
+            return redirect()->route('grammar.quiz.showQuestion', ['category' => $categorySlug, 'questionIndex' => $questionIndex + 1])
+                             ->with('message', $message);
         } else {
-            return redirect()->route('grammar.quiz.completeQuiz', ['category' => $categorySlug]);
+            return redirect()->route('grammar.quiz.completeQuiz', ['category' => $categorySlug])
+                             ->with('message', $message);
         }
     }
 
@@ -126,6 +131,7 @@ class GrammarController extends Controller
 
         // Calculate score
         $score = 0;
+        $messages = [];
 
         foreach ($questions as $index => $question) {
             // Get user's answer
@@ -146,9 +152,12 @@ class GrammarController extends Controller
                 $correctedAnswer = $correctedAnswers[$index];
             }
 
-            // Compare corrected answer with the correct answer
-            if ($correctedAnswer && $correctedAnswer == $question->answer) {
+            // Compare corrected answer with the user's answer
+            if ($userAnswer && $userAnswer == $correctedAnswer) {
                 $score++;
+                $messages[$index] = 'OK';
+            } else {
+                $messages[$index] = 'Salah';
             }
         }
 
@@ -166,6 +175,7 @@ class GrammarController extends Controller
             'points' => $user->points, // Total user points
             'answers' => $answers,
             'grammarResults' => $correctedAnswers,
+            'messages' => $messages, // Pass messages to the view
         ]);
     }
 
