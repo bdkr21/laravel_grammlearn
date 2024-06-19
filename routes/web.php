@@ -3,10 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GrammarController;
-use App\Http\Controllers\MateriController;
-
-Route::get('/materi', [MateriController::class, 'index'])->name('materi');
-Route::get('/materi/{topic}', [MateriController::class, 'show'])->name('materi.show');
+use App\Http\Controllers\CategoryController;
 
 Route::get('/', [GrammarController::class, 'index'])->name('home');
 Route::get('/quiz/{category}', [GrammarController::class, 'startQuiz'])->name('grammar.quiz');

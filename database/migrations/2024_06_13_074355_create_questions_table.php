@@ -12,6 +12,7 @@ class CreateQuestionsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('category_id');
             $table->string('question');
+            $table->string('answer');
             $table->timestamps();
 
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
