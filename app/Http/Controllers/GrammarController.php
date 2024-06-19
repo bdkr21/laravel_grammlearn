@@ -5,33 +5,21 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
+use App\Services\GrammarService;
 
 class GrammarController extends Controller
 {
+    protected $grammarService;
+
+    public function __construct(GrammarService $grammarService)
+    {
+        $this->grammarService = $grammarService;
+    }
+
     public function index()
     {
         $categories = Category::all();
         return view('index', compact('categories'));
-    }
-
-    public function startQuiz($categorySlug)
-    {
-        $category = Category::where('slug', $categorySlug)->firstOrFail();
-        $user = Auth::user();
-
-        if (!$user->unlockedCategories->contains($category->id)) {
-            if ($user->points < $category->required_points) {
-                return redirect()->back()->with('error', 'You do not have enough points to unlock this category.');
-            }
-
-            return view('confirm_open_quiz', compact('category'));
-        }
-
-        return redirect()->route('grammar.quiz.showQuestion', [
-            'category' => $categorySlug,
-            'questionIndex' => 1
-        ]);
     }
 
     public function showQuestion($categorySlug, $questionIndex)
@@ -54,11 +42,11 @@ class GrammarController extends Controller
         $category = Category::where('slug', $categorySlug)->first();
 
         if ($user && $category && $user->points >= $category->required_points) {
-            // Kurangi poin pengguna
+            // Deduct points from the user
             $user->points -= $category->required_points;
             $user->save();
 
-            // Tambahkan kategori ke unlocked categories
+            // Add category to unlocked categories
             $user->unlockedCategories()->attach($category->id);
 
             // Redirect to the quiz page
@@ -83,13 +71,12 @@ class GrammarController extends Controller
         $totalQuestions = $category->questions()->count();
 
         if ($nextQuestionIndex > $totalQuestions) {
-            $score = $this->calculateScore($request, $category->questions);
-            return redirect()->route('grammar.quiz.result', ['category' => $categorySlug, 'score' => $score]);
+            return redirect()->route('grammar.quiz.completeQuiz', ['category' => $categorySlug]);
         }
 
         $question = $category->questions()->skip($nextQuestionIndex - 1)->first();
 
-        return view('grammar.quiz', [
+        return view('quiz', [
             'category' => $category,
             'question' => $question,
             'totalQuestions' => $totalQuestions,
@@ -102,52 +89,23 @@ class GrammarController extends Controller
         return redirect()->route('grammar.quiz.showQuestion', ['category' => $categorySlug, 'questionIndex' => $questionIndex - 1]);
     }
 
-    public function submitQuiz(Request $request, $categorySlug)
-    {
-        $category = $this->getCategoryBySlug($categorySlug);
-        $questions = $category->questions;
-        $answers = $request->session()->get('answers', []);
-
-        $score = $this->calculateScore($answers, $questions);
-
-        return view('grammar.quiz_result', [
-            'category' => $category,
-            'score' => $score,
-            'questions' => $questions,
-            'totalQuestions' => $questions->count(),
-            'answers' => $answers,
-        ]);
-    }
-
-    public function confirmOpenQuiz($categorySlug)
-    {
-        $category = Category::where('slug', $categorySlug)->firstOrFail();
-        $user = Auth::user();
-
-        if ($user->points < $category->required_points) {
-            return redirect()->back()->with('error', 'You do not have enough points to unlock this category.');
-        }
-
-        $user->points -= $category->required_points;
-        $user->save();
-
-        $user->unlockedCategories()->attach($category->id);
-
-        return redirect()->route('grammar.quiz.showQuestion', [
-            'category' => $categorySlug,
-            'questionIndex' => 1
-        ]);
-    }
-
     public function submitAnswer(Request $request, $categorySlug, $questionIndex)
     {
         $category = $this->getCategoryBySlug($categorySlug);
         $totalQuestions = $category->questions()->count();
         $answers = $request->session()->get('answers', []);
-        $answers[$questionIndex - 1] = $request->input('answer');
-        $request->session()->put('answers', $answers);
+        $userAnswer = $request->input('answer');
+        $answers[$questionIndex - 1] = $userAnswer;
 
-        \Log::info('Answers:', $answers);
+        // GrammarBot API call to check the grammar of the question's text
+        $question = $category->questions()->skip($questionIndex - 1)->first();
+        $grammarCheck = $this->grammarService->checkGrammar($question->question);
+
+        // Get the corrected text from the response
+        $correctedAnswer = $grammarCheck['correction'] ?? $question->question;
+
+        $request->session()->put('answers', $answers);
+        $request->session()->put('corrected_answers', [$questionIndex - 1 => $correctedAnswer]);
 
         if ($questionIndex < $totalQuestions) {
             return redirect()->route('grammar.quiz.showQuestion', ['category' => $categorySlug, 'questionIndex' => $questionIndex + 1]);
@@ -158,34 +116,56 @@ class GrammarController extends Controller
 
     public function completeQuiz($categorySlug)
     {
+        // Get category and questions from slug
         $category = $this->getCategoryBySlug($categorySlug);
         $questions = $category->questions;
-        $answers = session('answers', []);
 
-        \Log::info('Answers at completeQuiz:', $answers);
+        // Get answers from session, default empty if not available
+        $answers = session()->get('answers', []);
+        $correctedAnswers = session()->get('corrected_answers', []);
 
-        $score = $this->calculateScore($answers, $questions);
+        // Calculate score
+        $score = 0;
+
+        foreach ($questions as $index => $question) {
+            // Get user's answer
+            $userAnswer = $answers[$index] ?? null;
+
+            // Grammar check using GrammarService
+            if (!isset($correctedAnswers[$index])) {
+                $response = $this->grammarService->checkGrammar($question->question);
+                $grammarCheck = $response;
+
+                // Get corrected answer from GrammarService if available
+                $correctedAnswer = $grammarCheck['correction'] ?? $question->question;
+
+                // Save the check result to session for use in quiz_result
+                $correctedAnswers[$index] = $correctedAnswer;
+                session()->put('corrected_answers', $correctedAnswers);
+            } else {
+                $correctedAnswer = $correctedAnswers[$index];
+            }
+
+            // Compare corrected answer with the correct answer
+            if ($correctedAnswer && $correctedAnswer == $question->answer) {
+                $score++;
+            }
+        }
+
+        // Add score to user's points
         $user = Auth::user();
         $user->points += $score;
         $user->save();
 
-        // Pemeriksaan grammar menggunakan GrammarBot API
-        $grammarResults = [];
-        foreach ($answers as $index => $answer) {
-            $response = $this->checkGrammar($answer);
-            $grammarResults[$index] = json_decode($response, true);
-        }
-
-        \Log::info('Calculated Score:', ['score' => $score, 'answers' => $answers]);
-
+        // Show quiz result page
         return view('quiz_result', [
             'category' => $category,
             'questions' => $questions,
             'totalQuestions' => $questions->count(),
             'score' => $score,
-            'points' => $score,
+            'points' => $user->points, // Total user points
             'answers' => $answers,
-            'grammarResults' => $grammarResults,
+            'grammarResults' => $correctedAnswers,
         ]);
     }
 
@@ -195,13 +175,12 @@ class GrammarController extends Controller
         $questions = $category->questions;
         $answers = $request->session()->get('answers', []);
 
-        $score = $this->calculateScore($answers, $questions);
+        $score = $this->grammarService->calculateScore($answers, $questions);
 
         // Pemeriksaan grammar menggunakan GrammarBot API
         $grammarResults = [];
         foreach ($answers as $index => $answer) {
-            $response = $this->checkGrammar($answer);
-            $grammarResults[$index] = json_decode($response, true);
+            $grammarResults[$index] = $this->grammarService->checkGrammar($answer);
         }
 
         \Log::info('Calculated Score:', ['score' => $score, 'answers' => $answers]);
@@ -219,32 +198,5 @@ class GrammarController extends Controller
     protected function getCategoryBySlug($slug)
     {
         return Category::where('slug', $slug)->firstOrFail();
-    }
-
-    protected function calculateScore($answers, $questions)
-    {
-        $score = 0;
-
-        foreach ($questions as $index => $question) {
-            if (isset($answers[$index]) && $answers[$index] == $question->answer) {
-                $score++;
-            }
-        }
-
-        return $score;
-    }
-
-    protected function checkGrammar($text)
-    {
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'x-rapidapi-host' => 'grammarbot-neural.p.rapidapi.com',
-            'x-rapidapi-key' => 'b6c4337eb6msh87cbb3d9555152cp132e22jsn38e19558df62'
-        ])->post('https://grammarbot-neural.p.rapidapi.com/v1/check', [
-            'text' => $text,
-            'lang' => 'en'
-        ]);
-
-        return $response->body();
     }
 }
