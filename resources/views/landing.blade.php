@@ -71,7 +71,7 @@
         <div class="container">
             <h1>Selamat Datang di Grammlearn</h1>
             <p>Tingkatkan kemampuan grammar bahasa Inggris Anda dengan kuis interaktif dan menyenangkan!</p>
-            <a href="{{ route('home') }}" class="btn btn-light btn-lg">Mulai Sekarang</a>
+            <a href="{{ route('index.courses') }}" class="btn btn-light btn-lg">Mulai Sekarang</a>
         </div>
     </header>
 

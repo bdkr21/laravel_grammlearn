@@ -6,6 +6,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GrammarController;
 use App\Http\Controllers\MateriController;
 use App\Http\Controllers\DailyMissionController;
+use App\Http\Controllers\CourseController;
+
+
+Route::get('/courses', [CourseController::class, 'index'])->name('index.courses');
 
 
 Route::get('/', [LandingPageController::class, 'index'])->name('home');

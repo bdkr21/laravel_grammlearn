@@ -35,60 +35,9 @@
         }
     </style>
 </head>
+<!-- Include Navbar Component -->
+@include('components.navbar')
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <a class="navbar-brand" href="{{ url('/') }}">Grammlearn</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            @if (Route::has('login'))
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/materi') }}">materi</a>
-                    </li>
-                    @auth
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/daily-mission/quiz') }}">Daily Mission</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/dashboard') }}">Dashboard</a>
-                        </li>
-                        <!-- Bootstrap Dropdown for User Settings -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {{ Auth::user()->name }}
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item disabled" href="#">Points: {{ Auth::user()->points }}</a>
-                                <a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{{ route('logout') }}"
-                                onclick="event.preventDefault();
-                                            document.getElementById('logout-form').submit();">
-                                    Log Out
-                                </a>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                    @csrf
-                                </form>
-                            </div>
-                        </li>
-                    @else
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/login') }}">Log in</a>
-                        </li>
-                        @if (Route::has('register'))
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ url('/register') }}">Sign up</a>
-                            </li>
-                        @endif
-
-                    @endauth
-                </ul>
-            @endif
-        </div>
-    </nav>
 
     <div class="container">
         <div class="text-center my-4">
@@ -153,7 +102,6 @@
         </div>
     </div>
 
-
     <form id="unlockCategoryForm" method="POST" style="display: none;">
         @csrf
     </form>
@@ -162,7 +110,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <<script>
+    <script>
         $(document).ready(function() {
             // Handle click on unlock button
             $('.unlock-category-btn').click(function() {
@@ -187,7 +135,6 @@
             });
         });
     </script>
-
 
 </body>
 </html>
