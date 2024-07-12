@@ -11,22 +11,22 @@ class GrammarService
     {
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-            'x-rapidapi-key' => 'cac86ee80fmsh26da357e8a4226ap11bf7djsnf1b28e8f69ec',  // Ensure this is your actual API key
+            'x-rapidapi-key' => 'b6c4337eb6msh87cbb3d9555152cp132e22jsn38e19558df62',  // Ensure this is your actual API key
             'x-rapidapi-host' => 'grammarbot-neural.p.rapidapi.com',
         ])->post('https://grammarbot-neural.p.rapidapi.com/v1/check', [
             'text' => $text,
             'lang' => 'en',
         ]);
 
-        // Log the response status and body
-        Log::error('GrammarBot API Response', [
-            'status' => $response->status(),
-            'body' => $response->body()
-        ]);
+        // // Log the response status and body
+        // Log::error('GrammarBot API Response', [
+        //     'status' => $response->status(),
+        //     'body' => $response->body()
+        // ]);
 
-        if ($response->failed()) {
-            throw new \Exception('Failed to call GrammarBot API. Status: ' . $response->status() . ' Body: ' . $response->body());
-        }
+        // if ($response->failed()) {
+        //     throw new \Exception('Failed to call GrammarBot API. Status: ' . $response->status() . ' Body: ' . $response->body());
+        // }
 
         return json_decode($response->body(), true);
     }

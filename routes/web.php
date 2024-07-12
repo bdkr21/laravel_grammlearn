@@ -1,15 +1,26 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ShopController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GrammarController;
 use App\Http\Controllers\MateriController;
 use App\Http\Controllers\DailyMissionController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\PointController;
 
 
 Route::get('/courses', [CourseController::class, 'index'])->name('index.courses');
+Route::get('/courses/{id}', [CourseController::class, 'show'])->name('courses.show');
+
+
+
+Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+Route::post('/shop/buy/{id}', [ShopController::class, 'buy'])->name('shop.buy');
+
+
+Route::post('/api/give-points', [PointController::class, 'givePoints'])->name('api.give-points');
 
 
 Route::get('/', [LandingPageController::class, 'index'])->name('home');

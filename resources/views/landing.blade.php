@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selamat Datang di Grammar Quiz Bahasa Inggris</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Grammlearn Learning Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #f8f9fa;
@@ -66,69 +66,53 @@
         }
     </style>
 </head>
-<body>
-    <header class="hero-section text-center">
-        <div class="container">
-            <h1>Selamat Datang di Grammlearn</h1>
-            <p>Tingkatkan kemampuan grammar bahasa Inggris Anda dengan kuis interaktif dan menyenangkan!</p>
-            <a href="{{ route('index.courses') }}" class="btn btn-light btn-lg">Mulai Sekarang</a>
+<body class="bg-gray-100">
+
+    <!-- Navbar -->
+    @include('components.navbar')
+
+    <!-- Hero Section -->
+    <header class="hero-section bg-blue-500 text-white text-center">
+        <div class="container mx-auto py-16">
+            <h1 class="text-5xl font-bold mb-4">Selamat Datang di Grammlearn</h1>
+            <p class="text-xl mb-8">Tingkatkan kemampuan grammar bahasa Inggris Anda dengan kuis interaktif dan menyenangkan!</p>
+            <a href="{{ route('index.courses') }}" class="bg-white text-blue-500 font-semibold px-6 py-3 rounded">Mulai Sekarang</a>
         </div>
     </header>
 
-    <section class="features-section text-center">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 feature">
-                    <h3>Misi Harian</h3>
-                    <p>Tantang diri Anda dengan pertanyaan grammar bahasa Inggris baru setiap hari.</p>
+    <!-- Features Section -->
+    <section class="features-section text-center py-16">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="feature">
+                    <h3 class="text-xl font-semibold mb-2">Misi Harian</h3>
+                    <p class="text-gray-600">Tantang diri Anda dengan pertanyaan grammar bahasa Inggris baru setiap hari.</p>
                 </div>
-                <div class="col-md-4 feature">
-                    <h3>Kuis Kategori</h3>
-                    <p>Uji keterampilan Anda dalam berbagai kategori grammar dan lacak kemajuan Anda.</p>
+                <div class="feature">
+                    <h3 class="text-xl font-semibold mb-2">Kuis Kategori</h3>
+                    <p class="text-gray-600">Uji keterampilan Anda dalam berbagai kategori grammar dan lacak kemajuan Anda.</p>
                 </div>
-                <div class="col-md-4 feature">
-                    <h3>Peroleh Poin</h3>
-                    <p>Buka kategori baru dan dapatkan poin saat Anda meningkatkan kemampuan grammar Anda.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- <section class="about-section text-center">
-        <div class="container">
-            <h2>Tentang Kami</h2>
-            <p>Grammar Quiz Bahasa Inggris adalah platform edukatif yang dirancang untuk membantu Anda meningkatkan keterampilan grammar bahasa Inggris melalui latihan yang interaktif dan menyenangkan. Kami percaya bahwa belajar bahasa haruslah menyenangkan dan efektif.</p>
-        </div>
-    </section>
-
-    <section class="testimonial-section text-center">
-        <div class="container">
-            <h2>Apa Kata Mereka</h2>
-            <div class="row">
-                <div class="col-md-4 testimonial">
-                    <p>"Grammar Quiz sangat membantu saya dalam memahami grammar bahasa Inggris dengan lebih baik. Saya merasa lebih percaya diri dalam menulis bahasa Inggris." - <strong>Siti</strong></p>
-                </div>
-                <div class="col-md-4 testimonial">
-                    <p>"Platform ini menyenangkan dan interaktif. Saya bisa belajar sambil bermain kuis." - <strong>Budi</strong></p>
-                </div>
-                <div class="col-md-4 testimonial">
-                    <p>"Misi harian membuat saya selalu termotivasi untuk belajar setiap hari. Terima kasih, Grammar Quiz!" - <strong>Andi</strong></p>
+                <div class="feature">
+                    <h3 class="text-xl font-semibold mb-2">Peroleh Poin</h3>
+                    <p class="text-gray-600">Buka kategori baru dan dapatkan poin saat Anda meningkatkan kemampuan grammar Anda.</p>
                 </div>
             </div>
         </div>
-    </section> --}}
+    </section>
 
-    <section class="cta-section">
-        <div class="container">
-            <h2>Bergabunglah dengan Kami Sekarang!</h2>
-            <p>Mulailah perjalanan Anda untuk meningkatkan kemampuan grammar bahasa Inggris dengan Grammar Quiz. Gratis dan mudah digunakan.</p>
-            <a href="{{ route('register') }}" class="btn btn-light btn-lg">Daftar Sekarang</a>
+    <!-- CTA Section -->
+    <section class="cta-section bg-blue-500 text-white text-center py-16">
+        <div class="container mx-auto">
+            <h2 class="text-3xl font-bold mb-4">Bergabunglah dengan Kami Sekarang!</h2>
+            <p class="text-xl mb-8">Mulailah perjalanan Anda untuk meningkatkan kemampuan grammar bahasa Inggris dengan Grammar Quiz. Gratis dan mudah digunakan.</p>
+            <a href="{{ route('register') }}" class="bg-white text-blue-500 font-semibold px-6 py-3 rounded">Daftar Sekarang</a>
         </div>
     </section>
 
-    <footer class="text-center py-4">
-        <div class="container">
-            <p>&copy; 2024 Grammlearn.</p>
+    <!-- Footer -->
+    <footer class="bg-gray-100 text-center py-4">
+        <div class="container mx-auto">
+            <p class="text-gray-700">&copy; 2024 Grammlearn.</p>
         </div>
     </footer>
 
