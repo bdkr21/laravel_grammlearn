@@ -5,40 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course Overview</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="{{ asset('css/styles.css') }}" rel="stylesheet">
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-100 text-gray-800">
     @include('components.navbar')
 
     <div class="container mx-auto p-5">
-        <h1 class="text-2xl font-bold mb-5">Course overview</h1>
-        <ul class="flex space-x-4 mb-5 border-b">
+        <h1 class="text-2xl font-bold mb-5 text-center">Course Overview</h1>
+        <ul class="flex justify-center space-x-4 mb-5 border-b">
             <li class="pb-2 border-b-2 border-blue-500"><a href="#" class="text-blue-500">All</a></li>
         </ul>
         <div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($grammarTopics as $category => $courses)
                     @foreach($courses as $course)
                         @if(isset($course->title))
-                        <div class="bg-white p-4 rounded shadow relative w-full mx-auto">
+                        <div class="bg-white p-6 rounded-lg shadow-lg transform transition-transform hover:scale-105 relative">
                             <div class="flex justify-between items-center mb-4">
                                 <div>
-                                    <h5 class="text-lg font-bold"><a href="{{ route('courses.show', $course->id) }}">{{ $course->title }}</a></h5>
-                                    <p>{{ $course->description }}</p>
+                                    <h5 class="text-xl font-bold mb-2"><a href="{{ route('courses.show', $course->id) }}">{{ $course->title }}</a></h5>
+                                    <p class="text-gray-600">{{ $course->description }}</p>
                                 </div>
                             </div>
-                            <div class="relative mb-4">
-                                <div id="dropdownMenu{{ $loop->index }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
-                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Star this course</a>
-                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Unstar this course</a>
-                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Restore to view</a>
-                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Remove from view</a>
-                                </div>
-                            </div>
-                            <div class="flex justify-center">
-                                <button onclick="confirmAccess('{{ route('courses.show', $course->id) }}')" class="bg-blue-500 text-white px-4 py-2 rounded">
-                                    Get access
-                                </button>
+                            <div class="flex justify-center mt-4">
+                                @auth
+                                    <button onclick="confirmAccess('{{ route('courses.show', $course->id) }}')" class="bg-blue-500 text-white px-4 py-2 rounded-full shadow hover:bg-blue-600 transition-colors">
+                                        Get access
+                                    </button>
+                                @else
+                                    <button onclick="promptLoginOrSignUp()" class="bg-blue-500 text-white px-4 py-2 rounded-full shadow hover:bg-blue-600 transition-colors">
+                                        Get access
+                                    </button>
+                                @endauth
                             </div>
                         </div>
                         @endif
@@ -50,26 +49,6 @@
     @vite('resources/js/app.js')
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function toggleDropdown(event, index) {
-            event.preventDefault();
-            event.stopPropagation();
-            const dropdown = document.getElementById('dropdownMenu' + index);
-            if (dropdown) {
-                dropdown.classList.toggle('hidden');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            window.addEventListener('click', function(event) {
-                const dropdowns = document.querySelectorAll('[id^="dropdownMenu"]');
-                dropdowns.forEach(dropdown => {
-                    if (!dropdown.contains(event.target) && !dropdown.previousElementSibling.contains(event.target)) {
-                        dropdown.classList.add('hidden');
-                    }
-                });
-            });
-        });
-
         function confirmAccess(url) {
             Swal.fire({
                 title: 'Are you sure?',
@@ -82,6 +61,25 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = url;
+                }
+            })
+        }
+
+        function promptLoginOrSignUp() {
+            Swal.fire({
+                title: 'Not logged in',
+                text: "You need to log in or sign up to access this course.",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Login',
+                cancelButtonText: 'Sign Up'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '{{ route('login') }}';
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    window.location.href = '{{ route('register') }}';
                 }
             })
         }

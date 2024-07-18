@@ -5,7 +5,7 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a class="navbar-brand" href="{{ route('quiz') }}">Grammlearn</a>
+                    <a class="navbar-brand" href="{{ route('home') }}">Grammlearn</a>
                 </div>
 
                 <!-- Navigation Links -->
