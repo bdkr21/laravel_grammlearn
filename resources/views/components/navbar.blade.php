@@ -19,9 +19,6 @@
                         <li class="nav-item">
                             <a class="text-white hover:text-gray-400" href="{{ url('/daily-mission/quiz') }}">Daily Mission</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="text-white hover:text-gray-400" href="{{ url('/dashboard') }}">Dashboard</a>
-                        </li>
                         <!-- Tailwind Dropdown for User Settings -->
                         <li class="relative" @click.away="open = false" @close.stop="open = false" x-data="{ open: false }">
                             <button @click="open = !open" class="text-white hover:text-gray-400 focus:outline-none" id="navbarDropdown" aria-haspopup="true" aria-expanded="false">

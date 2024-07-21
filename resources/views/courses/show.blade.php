@@ -52,6 +52,26 @@
             font-size: 12px;
             color: #fff;
         }
+        #scroll-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        #scroll-buttons.visible {
+            opacity: 1;
+        }
+        #back-button, #to-top-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -62,25 +82,24 @@
         <span class="circular-progress-text" id="progress-text">0%</span>
     </div>
 
+    <!-- Scroll Buttons -->
+    <div id="scroll-buttons" class="fixed bottom-20 right-20 z-50 flex flex-col items-center space-y-2">
+        <button id="back-button" class="bg-gray-500 text-white rounded-full w-12 h-12 shadow-md">Back</button>
+        <button id="to-top-button" class="bg-blue-500 text-white rounded-full w-12 h-12 shadow-md">To Top</button>
+    </div>
+
     <div class="container mx-auto p-5">
         <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">{{ $course->title }}</h2>
-            </div>
             <div class="card-body">
-                <h5>Parts of Speech</h5>
-                <p>Parts of speech adalah kategori kata berdasarkan fungsi dan penggunaannya dalam kalimat. Berikut adalah beberapa jenis parts of speech beserta contohnya:</p>
-                <ul>
-                    <li><strong>Noun (Kata Benda):</strong> Kata yang digunakan untuk menyebutkan orang, tempat, benda, atau konsep. Contoh: <em>dog</em>, <em>school</em>, <em>happiness</em>.</li>
-                    <li><strong>Pronoun (Kata Ganti):</strong> Kata yang digunakan untuk menggantikan noun. Contoh: <em>he</em>, <em>they</em>, <em>it</em>.</li>
-                    <li><strong>Adjective (Kata Sifat):</strong> Kata yang digunakan untuk mendeskripsikan noun atau pronoun. Contoh: <em>beautiful</em>, <em>quick</em>, <em>happy</em>.</li>
-                    <li><strong>Verb (Kata Kerja):</strong> Kata yang menggambarkan tindakan atau keadaan. Contoh: <em>run</em>, <em>is</em>, <em>have</em>.</li>
-                    <li><strong>Adverb (Kata Keterangan):</strong> Kata yang mendeskripsikan verb, adjective, atau adverb lain. Contoh: <em>quickly</em>, <em>very</em>, <em>well</em>.</li>
-                    <li><strong>Preposition (Kata Depan):</strong> Kata yang menunjukkan hubungan antara noun atau pronoun dengan kata lain dalam kalimat. Contoh: <em>in</em>, <em>on</em>, <em>at</em>.</li>
-                    <li><strong>Conjunction (Kata Penghubung):</strong> Kata yang menghubungkan kata, frasa, atau klausa. Contoh: <em>and</em>, <em>but</em>, <em>or</em>.</li>
-                    <li><strong>Interjection (Kata Seru):</strong> Kata yang digunakan untuk mengekspresikan emosi. Contoh: <em>oh</em>, <em>wow</em>, <em>ouch</em>.</li>
-                </ul>
-                <p>Dengan memahami parts of speech, Anda dapat membuat kalimat yang lebih jelas dan efektif dalam bahasa Inggris.</p>
+                @if($course->title == 'Parts of Speech')
+                    @include('courses.partials.parts_of_speech')
+                @elseif($course->title == 'Simple Present Tense')
+                    @include('courses.partials.simple_present_tense')
+                @elseif($course->title == 'Present Continuous Tense')
+                    @include('courses.partials.present_continuous_tense')
+                @elseif($course->title == 'Simple Past Tense')
+                    @include('courses.partials.simple_past_tense')
+                @endif
             </div>
         </div>
     </div>
@@ -97,7 +116,7 @@
 
             let circularProgress = document.getElementById('circular-progress');
             let progressText = document.getElementById('progress-text');
-            let totalTime = 3; // Total time in seconds (5 minutes)
+            let totalTime = 3000; // Total time in seconds (5 minutes)
 
             let interval = setInterval(() => {
                 let currentTime = Date.now();
@@ -140,6 +159,33 @@
                 console.error('Error:', error);
             });
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const backButton = document.getElementById('back-button');
+            const toTopButton = document.getElementById('to-top-button');
+            const scrollButtons = document.getElementById('scroll-buttons');
+            let previousScrollPosition = 0;
+
+            backButton.addEventListener('click', () => {
+                window.history.back();
+            });
+
+            toTopButton.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            window.addEventListener('scroll', () => {
+                const currentScrollPosition = window.pageYOffset;
+
+                if (currentScrollPosition > 0) {
+                    scrollButtons.classList.add('visible');
+                } else {
+                    scrollButtons.classList.remove('visible');
+                }
+
+                previousScrollPosition = currentScrollPosition;
+            });
+        });
     </script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

@@ -85,7 +85,7 @@
             <div class="mt-6">
                 <h3 class="text-lg font-semibold text-white">Hal-hal yang Perlu Diperhatikan</h3>
                 <ol class="list-decimal list-inside space-y-2 text-white">
-                    <li>Membaca materi diberikan hingga 50 poin per hari.</li>
+                    <li>Membaca materi dapat memperoleh hingga 50 poin per hari.</li>
                     <li>Poin tidak dapat diperoleh jika belum melakukan login atau signup</li>
                     <li>Poin yang telah digunakan akan dikurangi ketika membeli item.</li>
                 </ol>

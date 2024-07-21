@@ -13,6 +13,8 @@ use App\Http\Controllers\PointController;
 
 Route::get('/courses', [CourseController::class, 'index'])->name('index.courses');
 Route::get('/courses/{id}', [CourseController::class, 'show'])->name('courses.show');
+Route::post('/courses/{id}/answers/{latihan}', [CourseController::class, 'storeAnswers'])->name('courses.storeAnswers');
+
 
 
 
