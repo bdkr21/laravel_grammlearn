@@ -1,138 +1,79 @@
-<!-- resources/views/index.blade.php -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basics test</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Basics Test</title>
     <link href="{{ asset('css/styles.css') }}" rel="stylesheet">
     @vite('resources/css/app.css')
-    <style>
-        /* Custom navbar styles */
-        .navbar {
-            background-color: #343a40; /* Dark background color */
-        }
-        .navbar-brand {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        .nav-link {
-            color: #fff !important;
-            padding: 0.5rem 1rem;
-        }
-        .dropdown-menu {
-            background-color: #343a40;
-        }
-        .dropdown-item {
-            color: #fff !important;
-        }
-        .dropdown-item:hover {
-            background-color: #495057;
-        }
-        .dropdown-divider {
-            border-color: #495057;
-        }
-    </style>
 </head>
-<!-- Include Navbar Component -->
-@include('components.navbar')
-<body>
+<body class="font-sans bg-gray-100">
 
-    <div class="container">
-        <div class="text-center my-4">
-            <h1>Quiz</h1>
-        </div>
-        <div class="card-container">
-            @foreach ($categories as $category)
+    @include('components.navbar')
+
+    <div class="container mx-auto p-5">
+        <h1 class="text-2xl font-bold mb-5 text-center">Kuis</h1>
+        <ul class="flex justify-center space-x-4 mb-5 border-b">
+            <li class="pb-2 border-b-2 border-blue-500"><a href="#" class="text-blue-500">All</a></li>
+        </ul>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            @foreach ($courses as $course)
                 @php
-                    $pointsRequired = $category->required_points;
+                    $pointsRequired = $course->required_points;
                 @endphp
 
-                @if (Auth::check() && Auth::user()->unlockedCategories->contains($category->id))
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $category->title }}</h5>
-                            <p class="card-text">{{ $category->description }}</p>
-                            <a href="{{ route('grammar.quiz.showQuestion', ['category' => $category->slug, 'questionIndex' => 1]) }}" class="btn btn-primary" aria-label="Learn">Learn</a>
-                        </div>
-                    </div>
-                @else
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $category->title }}</h5>
-                            <p class="card-text">{{ $category->description }}</p>
+                <div class="bg-white shadow-md rounded-lg overflow-hidden transform transition-transform hover:scale-105">
+                    <div class="p-6">
+                        <h5 class="text-xl font-semibold mb-2">{{ $course->title }}</h5>
+                        <p class="text-gray-700 mb-4">{{ $course->description }}</p>
+                        @if (Auth::check() && Auth::user()->unlockedCourses && Auth::user()->unlockedCourses->contains($course->id))
+                            <a href="{{ route('grammar.quiz.showQuestion', ['course' => $course->slug, 'questionIndex' => 1]) }}" class="inline-block px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75" aria-label="Learn">Learn</a>
+                        @else
                             @if (Auth::check())
                                 @if (Auth::user()->points >= $pointsRequired)
-                                    <form id="unlockCategoryForm" action="{{ route('unlock.category') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="category" value="{{ $category->slug }}">
-                                        <button type="button" class="btn btn-warning unlock-category-btn" data-category="{{ $category->slug }}" data-points-required="{{ $pointsRequired }}" aria-label="Unlock">Unlock ({{ $pointsRequired }} points)</button>
-                                    </form>
+                                    <button class="unlock-course-btn inline-block px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-75" data-course="{{ $course->slug }}" data-points-required="{{ $pointsRequired }}" aria-label="Unlock">Unlock ({{ $pointsRequired }} points)</button>
                                 @else
-                                    <button class="btn btn-secondary" disabled aria-label="Locked">Locked (Requires {{ $pointsRequired }} points)</button>
+                                    <button class="inline-block px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg shadow-md cursor-not-allowed" disabled aria-label="Locked">Locked (Requires {{ $pointsRequired }} points)</button>
                                 @endif
                             @else
-                                <button class="btn btn-secondary" disabled aria-label="Locked">Locked (Requires {{ $pointsRequired }} points - Please log in)</button>
+                                <button class="inline-block px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg shadow-md cursor-not-allowed" disabled aria-label="Locked">Locked (Requires {{ $pointsRequired }} points - Please log in)</button>
                             @endif
-                        </div>
+                        @endif
                     </div>
-                @endif
+                </div>
             @endforeach
         </div>
     </div>
-    <!-- Modal for Confirmation -->
-    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmationModalLabel">Unlock Category</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to unlock this category? This will cost <span id="pointsRequired"></span> points.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="confirmUnlockBtn">Confirm</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <form id="unlockCategoryForm" method="POST" style="display: none;">
+    <form id="unlockCourseForm" method="POST" style="display: none;">
         @csrf
     </form>
 
+    @vite('resources/js/app.js')
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
         $(document).ready(function() {
-            // Handle click on unlock button
-            $('.unlock-category-btn').click(function() {
-                var categorySlug = $(this).data('category');
+            $('.unlock-course-btn').click(function() {
+                var courseSlug = $(this).data('course');
                 var pointsRequired = $(this).data('points-required');
 
-                // Display the required points in the modal
-                $('#pointsRequired').text(pointsRequired);
-
-                // Store the category slug in the modal for use when confirming
-                $('#confirmationModal').data('category', categorySlug).modal('show');
-            });
-
-            // Handle click on confirm button in modal
-            $('#confirmUnlockBtn').click(function() {
-                var categorySlug = $('#confirmationModal').data('category');
-
-                // Set the action of the form and submit it
-                var $form = $('#unlockCategoryForm');
-                $form.attr('action', '/unlock-category').append('<input type="hidden" name="category" value="' + categorySlug + '">');
-                $form.submit();
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Do you want to unlock this course? This will cost " + pointsRequired + " points.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, unlock it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var $form = $('#unlockCourseForm');
+                        $form.attr('action', '/unlock-course').append('<input type="hidden" name="course" value="' + courseSlug + '">');
+                        $form.submit();
+                    }
+                })
             });
         });
     </script>

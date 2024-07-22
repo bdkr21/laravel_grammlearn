@@ -59,6 +59,8 @@ class User extends Authenticatable
      */
     public function unlockedCategories()
     {
-        return $this->belongsToMany(Category::class, 'user_unlocked_categories', 'user_id', 'category_id');
+        // return $this->belongsToMany(Category::class, 'user_unlocked_categories', 'user_id', 'category_id');
+        return $this->belongsToMany(Course::class, 'user_unlocked_courses', 'user_id', 'course_id');
+
     }
 }

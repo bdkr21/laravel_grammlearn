@@ -13,6 +13,9 @@
                         <a class="text-white hover:text-gray-400" href="{{ url('/shop') }}">Toko</a>
                     </li>
                     <li class="nav-item">
+                        <a class="text-white hover:text-gray-400" href="{{ url('/quiz') }}">Kuis</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="text-white hover:text-gray-400" href="{{ url('/courses') }}">Materi</a>
                     </li>
                     @auth

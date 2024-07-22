@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Category;
+use App\Models\Course;
 use Illuminate\Support\Facades\Auth;
 use App\Services\GrammarService;
 
@@ -18,97 +18,97 @@ class GrammarController extends Controller
 
     public function index()
     {
-        $categories = Category::all();
-        return view('index', compact('categories'));
+        $courses = Course::all();
+        return view('index', compact('courses'));
     }
 
-    public function startQuiz($categorySlug)
+    public function startQuiz($courseSlug)
     {
-        $category = $this->getCategoryBySlug($categorySlug);
+        $course = $this->getCourseBySlug($courseSlug);
         return redirect()->route('grammar.quiz.showQuestion', [
-            'category' => $categorySlug,
+            'course' => $courseSlug,
             'questionIndex' => 1
         ]);
     }
 
-    public function showQuestion($categorySlug, $questionIndex)
+    public function showQuestion($courseSlug, $questionIndex)
     {
-        $category = $this->getCategoryBySlug($categorySlug);
-        $question = $category->questions()->skip($questionIndex - 1)->first();
+        $course = $this->getCourseBySlug($courseSlug);
+        $question = $course->questions()->skip($questionIndex - 1)->first();
         $answers = session()->get('answers', []);
 
         return view('quiz', [
-            'category' => $category,
+            'course' => $course,
             'currentQuestionIndex' => $questionIndex,
-            'totalQuestions' => $category->questions()->count(),
+            'totalQuestions' => $course->questions()->count(),
             'question' => $question,
             'answers' => $answers
         ]);
     }
 
-    public function unlockCategory(Request $request)
+    public function unlockCourse(Request $request)
     {
         $user = Auth::user();
-        $categorySlug = $request->input('category');
-        $category = Category::where('slug', $categorySlug)->first();
+        $courseSlug = $request->input('course');
+        $course = Course::where('slug', $courseSlug)->first();
 
-        if ($user && $category && $user->points >= $category->required_points) {
+        if ($user && $course && $user->points >= $course->required_points) {
             // Deduct points from the user
-            $user->points -= $category->required_points;
+            $user->points -= $course->required_points;
             $user->save();
 
-            // Add category to unlocked categories
-            $user->unlockedCategories()->attach($category->id);
+            // Add course to unlocked courses
+            $user->unlockedCourses()->attach($course->id);
 
             // Redirect to the quiz page
             return redirect()->route('grammar.quiz.showQuestion', [
-                'category' => $categorySlug,
+                'course' => $courseSlug,
                 'questionIndex' => 1
-            ])->with('success', 'Category unlocked successfully.');
+            ])->with('success', 'Course unlocked successfully.');
         } else {
-            return redirect()->back()->with('error', 'Not enough points to unlock this category.');
+            return redirect()->back()->with('error', 'Not enough points to unlock this course.');
         }
     }
 
-    public function nextQuestion(Request $request, $categorySlug)
+    public function nextQuestion(Request $request, $courseSlug)
     {
-        $category = $this->getCategoryBySlug($categorySlug);
+        $course = $this->getCourseBySlug($courseSlug);
         $currentQuestionIndex = $request->input('currentQuestionIndex');
         $answers = $request->session()->get('answers', []);
         $answers[$currentQuestionIndex] = $request->input('answer');
         $request->session()->put('answers', $answers);
 
         $nextQuestionIndex = $currentQuestionIndex + 1;
-        $totalQuestions = $category->questions()->count();
+        $totalQuestions = $course->questions()->count();
 
         if ($nextQuestionIndex > $totalQuestions) {
-            return redirect()->route('grammar.quiz.completeQuiz', ['category' => $categorySlug]);
+            return redirect()->route('grammar.quiz.completeQuiz', ['course' => $courseSlug]);
         }
 
-        $question = $category->questions()->skip($nextQuestionIndex - 1)->first();
+        $question = $course->questions()->skip($nextQuestionIndex - 1)->first();
 
         return view('quiz', [
-            'category' => $category,
+            'course' => $course,
             'question' => $question,
             'totalQuestions' => $totalQuestions,
             'currentQuestionIndex' => $nextQuestionIndex,
         ]);
     }
 
-    public function previousQuestion($categorySlug, $questionIndex)
+    public function previousQuestion($courseSlug, $questionIndex)
     {
-        return redirect()->route('grammar.quiz.showQuestion', ['category' => $categorySlug, 'questionIndex' => $questionIndex - 1]);
+        return redirect()->route('grammar.quiz.showQuestion', ['course' => $courseSlug, 'questionIndex' => $questionIndex - 1]);
     }
 
-    public function submitAnswer(Request $request, $categorySlug, $questionIndex)
+    public function submitAnswer(Request $request, $courseSlug, $questionIndex)
     {
-        $category = $this->getCategoryBySlug($categorySlug);
-        $totalQuestions = $category->questions()->count();
+        $course = $this->getCourseBySlug($courseSlug);
+        $totalQuestions = $course->questions()->count();
         $answers = $request->session()->get('answers', []);
         $userAnswer = $request->input('answer');
         $answers[$questionIndex - 1] = $userAnswer;
 
-        $question = $category->questions()->skip($questionIndex - 1)->first();
+        $question = $course->questions()->skip($questionIndex - 1)->first();
         $grammarCheck = $this->grammarService->checkGrammar($question->question);
 
         $correctedAnswer = $grammarCheck['correction'] ?? $question->question;
@@ -121,18 +121,18 @@ class GrammarController extends Controller
         $message = $userAnswer === $correctedAnswer ? 'OK' : 'Salah';
 
         if ($questionIndex < $totalQuestions) {
-            return redirect()->route('grammar.quiz.showQuestion', ['category' => $categorySlug, 'questionIndex' => $questionIndex + 1])
+            return redirect()->route('grammar.quiz.showQuestion', ['course' => $courseSlug, 'questionIndex' => $questionIndex + 1])
                              ->with('message', $message);
         } else {
-            return redirect()->route('grammar.quiz.completeQuiz', ['category' => $categorySlug])
+            return redirect()->route('grammar.quiz.completeQuiz', ['course' => $courseSlug])
                              ->with('message', $message);
         }
     }
 
-    public function completeQuiz($categorySlug)
+    public function completeQuiz($courseSlug)
     {
-        $category = $this->getCategoryBySlug($categorySlug);
-        $questions = $category->questions;
+        $course = $this->getCourseBySlug($courseSlug);
+        $questions = $course->questions;
 
         $answers = session()->get('answers', []);
         $correctedAnswers = session()->get('corrected_answers', []);
@@ -160,7 +160,7 @@ class GrammarController extends Controller
         $user->save();
 
         return view('quiz_result', [
-            'category' => $category,
+            'course' => $course,
             'questions' => $questions,
             'totalQuestions' => $questions->count(),
             'score' => $score,
@@ -171,35 +171,8 @@ class GrammarController extends Controller
         ])->with('pointsEarned', $score);
     }
 
-
-    public function quizResult(Request $request, $categorySlug)
+    protected function getCourseBySlug($slug)
     {
-        $category = $this->getCategoryBySlug($categorySlug);
-        $questions = $category->questions;
-        $answers = $request->session()->get('answers', []);
-
-        $score = $this->grammarService->calculateScore($answers, $questions);
-
-        $grammarResults = [];
-        foreach ($answers as $index => $answer) {
-            $grammarResults[$index] = $this->grammarService->checkGrammar($answer);
-        }
-
-        \Log::info('Calculated Score:', ['score' => $score, 'answers' => $answers]);
-
-        return view('grammar.quiz_result', [
-            'category' => $category,
-            'score' => $score,
-            'questions' => $questions,
-            'totalQuestions' => $questions->count(),
-            'answers' => $answers,
-            'grammarResults' => $grammarResults,
-        ]);
+        return Course::where('slug', $slug)->firstOrFail();
     }
-
-    protected function getCategoryBySlug($slug)
-    {
-        return Category::where('slug', $slug)->firstOrFail();
-    }
-
 }

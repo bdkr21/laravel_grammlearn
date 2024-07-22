@@ -9,10 +9,10 @@ class Question extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['category_id', 'question', 'answer'];
+    protected $fillable = ['course_id', 'question_text', 'correct_answer_id'];
 
-    public function category()
+    public function course()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Course::class);
     }
 }

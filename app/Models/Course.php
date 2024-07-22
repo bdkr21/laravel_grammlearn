@@ -11,4 +11,13 @@ class Course extends Model
         $grammarTopics = Course::all()->groupBy('category');
         return view('courses.index', ['grammarTopics' => $grammarTopics]);
     }
+
+    use HasFactory;
+
+    protected $fillable = ['title', 'description', 'required_points', 'slug'];
+
+    public function questions()
+    {
+        return $this->hasMany(Question::class);
+    }
 }

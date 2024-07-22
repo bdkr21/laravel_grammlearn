@@ -15,9 +15,6 @@ Route::get('/courses', [CourseController::class, 'index'])->name('index.courses'
 Route::get('/courses/{id}', [CourseController::class, 'show'])->name('courses.show');
 Route::post('/courses/{id}/answers/{latihan}', [CourseController::class, 'storeAnswers'])->name('courses.storeAnswers');
 
-
-
-
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::post('/shop/buy/{id}', [ShopController::class, 'buy'])->name('shop.buy');
 
@@ -37,15 +34,16 @@ Route::get('/daily-mission/quiz/question/{questionIndex}', [DailyMissionControll
 Route::post('/daily-mission/quiz/question/{questionIndex}/submit', [DailyMissionController::class, 'submitAnswer'])->name('daily.quiz.submitAnswer');
 Route::get('/daily-mission/quiz/complete', [DailyMissionController::class, 'completeQuiz'])->name('daily.quiz.completeQuiz');
 
+// Grammar Quiz Routes
 Route::get('/quiz', [GrammarController::class, 'index'])->name('quiz');
-Route::get('/quiz/{category}', [GrammarController::class, 'startQuiz'])->name('grammar.quiz.start');
-Route::post('/confirm-open-quiz/{category}', [GrammarController::class, 'confirmOpenQuiz'])->name('confirm.open.quiz');
-Route::get('/quiz/{category}/question/{questionIndex}', [GrammarController::class, 'showQuestion'])->name('grammar.quiz.showQuestion');
-Route::post('/quiz/{category}/question/{questionIndex}/submit', [GrammarController::class, 'submitAnswer'])->name('grammar.quiz.submitAnswer');
-Route::get('/quiz/{category}/complete', [GrammarController::class, 'completeQuiz'])->name('grammar.quiz.completeQuiz');
-Route::get('/quiz/result/{category}', [GrammarController::class, 'quizResult'])->name('grammar.quiz.result');
-Route::post('/unlock-category', [GrammarController::class, 'unlockCategory'])->name('unlock.category');
-Route::get('/grammar/quiz/{category}/previous-question/{questionIndex}', [GrammarController::class, 'previousQuestion'])->name('grammar.quiz.previousQuestion');
+Route::get('/quiz/{course}', [GrammarController::class, 'startQuiz'])->name('grammar.quiz.start');
+Route::post('/confirm-open-quiz/{course}', [GrammarController::class, 'confirmOpenQuiz'])->name('confirm.open.quiz');
+Route::get('/quiz/{course}/question/{questionIndex}', [GrammarController::class, 'showQuestion'])->name('grammar.quiz.showQuestion');
+Route::post('/quiz/{course}/question/{questionIndex}/submit', [GrammarController::class, 'submitAnswer'])->name('grammar.quiz.submitAnswer');
+Route::get('/quiz/{course}/complete', [GrammarController::class, 'completeQuiz'])->name('grammar.quiz.completeQuiz');
+Route::get('/quiz/result/{course}', [GrammarController::class, 'quizResult'])->name('grammar.quiz.result');
+Route::post('/unlock-course', [GrammarController::class, 'unlockCourse'])->name('unlock.course');
+Route::get('/grammar/quiz/{course}/previous-question/{questionIndex}', [GrammarController::class, 'previousQuestion'])->name('grammar.quiz.previousQuestion');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/grammar/quiz/{categorySlug}/confirm-open', [GrammarController::class, 'confirmOpenQuiz'])->name('grammar.quiz.confirmOpen');
