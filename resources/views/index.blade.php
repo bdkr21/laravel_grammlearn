@@ -26,56 +26,61 @@
                     <div class="p-6">
                         <h5 class="text-xl font-semibold mb-2">{{ $course->title }}</h5>
                         <p class="text-gray-700 mb-4">{{ $course->description }}</p>
-                        @if (Auth::check() && Auth::user()->unlockedCourses && Auth::user()->unlockedCourses->contains($course->id))
-                            <a href="{{ route('grammar.quiz.showQuestion', ['course' => $course->slug, 'questionIndex' => 1]) }}" class="inline-block px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75" aria-label="Learn">Learn</a>
-                        @else
-                            @if (Auth::check())
-                                @if (Auth::user()->points >= $pointsRequired)
-                                    <button class="unlock-course-btn inline-block px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-75" data-course="{{ $course->slug }}" data-points-required="{{ $pointsRequired }}" aria-label="Unlock">Unlock ({{ $pointsRequired }} points)</button>
-                                @else
-                                    <button class="inline-block px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg shadow-md cursor-not-allowed" disabled aria-label="Locked">Locked (Requires {{ $pointsRequired }} points)</button>
-                                @endif
+                        <div class="flex justify-center mt-4">
+                            @auth
+                                <button onclick="confirmAccess('{{ route('grammar.quiz.start', $course->slug) }}')"class="bg-yellow-600 text-white px-4 py-2 rounded-full shadow hover:bg-yellow-800 transition-colors">
+                                    Ikuti Kuis
+                                </button>
                             @else
-                                <button class="inline-block px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg shadow-md cursor-not-allowed" disabled aria-label="Locked">Locked (Requires {{ $pointsRequired }} points - Please log in)</button>
-                            @endif
-                        @endif
+                            <button onclick="promptLoginOrSignUp()" class="bg-yellow-600 text-white px-4 py-2 rounded-full shadow hover:bg-yellow-800 transition-colors">
+                                Ikuti Kuis
+                            </button>
+                            @endauth
+                        </div>
                     </div>
                 </div>
             @endforeach
         </div>
     </div>
 
-    <form id="unlockCourseForm" method="POST" style="display: none;">
-        @csrf
-    </form>
-
     @vite('resources/js/app.js')
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
     <script>
-        $(document).ready(function() {
-            $('.unlock-course-btn').click(function() {
-                var courseSlug = $(this).data('course');
-                var pointsRequired = $(this).data('points-required');
-
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "Do you want to unlock this course? This will cost " + pointsRequired + " points.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, unlock it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        var $form = $('#unlockCourseForm');
-                        $form.attr('action', '/unlock-course').append('<input type="hidden" name="course" value="' + courseSlug + '">');
-                        $form.submit();
-                    }
-                })
-            });
-        });
+        function confirmAccess(url) {
+            Swal.fire({
+                title: 'Apakah Anda Yakin?',
+                text: "Apakah Anda ingin mengikuti kuis ini?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, ikuti!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            })
+        }
+        function promptLoginOrSignUp() {
+            Swal.fire({
+                title: 'Not logged in',
+                text: "You need to log in or sign up to access this course.",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Login',
+                cancelButtonText: 'Sign Up'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '{{ route('login') }}';
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    window.location.href = '{{ route('register') }}';
+                }
+            })
+        }
     </script>
 
 </body>

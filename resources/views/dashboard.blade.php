@@ -35,7 +35,7 @@
                     </div>
                 </div>
             </div>
-            <div x-data="{ showCategories: false }" class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-6">
+            {{-- <div x-data="{ showCategories: false }" class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-6">
                 <div class="p-6 text-gray-900">
                     <div class="flex items-center cursor-pointer" @click="showCategories = !showCategories">
                         <div class="flex-shrink-0">
@@ -63,7 +63,7 @@
                         </ul>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 </x-app-layout>

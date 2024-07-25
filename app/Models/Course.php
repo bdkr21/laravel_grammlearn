@@ -14,7 +14,7 @@ class Course extends Model
 
     use HasFactory;
 
-    protected $fillable = ['title', 'description', 'required_points', 'slug'];
+    protected $fillable = ['title', 'description', 'slug'];
 
     public function questions()
     {

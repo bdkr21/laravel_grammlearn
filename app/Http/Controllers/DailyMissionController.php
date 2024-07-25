@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Auth;
 
 class DailyMissionController extends Controller
 {
-    protected $grammarService;
+    // protected $grammarService;
 
-    public function __construct(GrammarService $grammarService)
-    {
-        $this->grammarService = $grammarService;
-    }
+    // public function __construct(GrammarService $grammarService)
+    // {
+    //     $this->grammarService = $grammarService;
+    // }
 
     public function index()
     {

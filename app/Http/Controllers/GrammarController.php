@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Course;
+use App\Models\Question;
+use App\Models\Answer;
 use Illuminate\Support\Facades\Auth;
 use App\Services\GrammarService;
 
@@ -18,6 +20,8 @@ class GrammarController extends Controller
 
     public function index()
     {
+        session()->forget('answers');
+        session()->forget('corrected_answers');
         $courses = Course::all();
         return view('index', compact('courses'));
     }
@@ -33,41 +37,26 @@ class GrammarController extends Controller
 
     public function showQuestion($courseSlug, $questionIndex)
     {
-        $course = $this->getCourseBySlug($courseSlug);
-        $question = $course->questions()->skip($questionIndex - 1)->first();
+        $course = Course::where('slug', $courseSlug)->firstOrFail();
+        $question = Question::where('course_id', $course->id)->skip($questionIndex - 1)->first();
+
+        if ($question) {
+            $options = Answer::where('question_id', $question->id)->pluck('answer_text');
+        } else {
+            $options = [];
+        }
+
+        $totalQuestions = Question::where('course_id', $course->id)->count();
         $answers = session()->get('answers', []);
 
         return view('quiz', [
             'course' => $course,
-            'currentQuestionIndex' => $questionIndex,
-            'totalQuestions' => $course->questions()->count(),
             'question' => $question,
+            'questionIndex' => $questionIndex,
+            'totalQuestions' => $totalQuestions,
+            'options' => $options,
             'answers' => $answers
         ]);
-    }
-
-    public function unlockCourse(Request $request)
-    {
-        $user = Auth::user();
-        $courseSlug = $request->input('course');
-        $course = Course::where('slug', $courseSlug)->first();
-
-        if ($user && $course && $user->points >= $course->required_points) {
-            // Deduct points from the user
-            $user->points -= $course->required_points;
-            $user->save();
-
-            // Add course to unlocked courses
-            $user->unlockedCourses()->attach($course->id);
-
-            // Redirect to the quiz page
-            return redirect()->route('grammar.quiz.showQuestion', [
-                'course' => $courseSlug,
-                'questionIndex' => 1
-            ])->with('success', 'Course unlocked successfully.');
-        } else {
-            return redirect()->back()->with('error', 'Not enough points to unlock this course.');
-        }
     }
 
     public function nextQuestion(Request $request, $courseSlug)
@@ -85,78 +74,63 @@ class GrammarController extends Controller
             return redirect()->route('grammar.quiz.completeQuiz', ['course' => $courseSlug]);
         }
 
-        $question = $course->questions()->skip($nextQuestionIndex - 1)->first();
-
-        return view('quiz', [
-            'course' => $course,
-            'question' => $question,
-            'totalQuestions' => $totalQuestions,
-            'currentQuestionIndex' => $nextQuestionIndex,
+        return redirect()->route('grammar.quiz.showQuestion', [
+            'course' => $courseSlug,
+            'questionIndex' => $nextQuestionIndex
         ]);
     }
 
     public function previousQuestion($courseSlug, $questionIndex)
     {
-        return redirect()->route('grammar.quiz.showQuestion', ['course' => $courseSlug, 'questionIndex' => $questionIndex - 1]);
+        return redirect()->route('grammar.quiz.showQuestion', [
+            'course' => $courseSlug,
+            'questionIndex' => $questionIndex - 1
+        ]);
     }
 
-    public function submitAnswer(Request $request, $courseSlug, $questionIndex)
+    public function saveAnswer(Request $request, $courseSlug, $questionIndex)
     {
-        $course = $this->getCourseBySlug($courseSlug);
-        $totalQuestions = $course->questions()->count();
+        $course = Course::where('slug', $courseSlug)->firstOrFail();
         $answers = $request->session()->get('answers', []);
         $userAnswer = $request->input('answer');
         $answers[$questionIndex - 1] = $userAnswer;
 
-        $question = $course->questions()->skip($questionIndex - 1)->first();
-        $grammarCheck = $this->grammarService->checkGrammar($question->question);
-
-        $correctedAnswer = $grammarCheck['correction'] ?? $question->question;
-
         $request->session()->put('answers', $answers);
-        $correctedAnswers = $request->session()->get('corrected_answers', []);
-        $correctedAnswers[$questionIndex - 1] = $correctedAnswer;
-        $request->session()->put('corrected_answers', $correctedAnswers);
 
-        $message = $userAnswer === $correctedAnswer ? 'OK' : 'Salah';
-
-        if ($questionIndex < $totalQuestions) {
-            return redirect()->route('grammar.quiz.showQuestion', ['course' => $courseSlug, 'questionIndex' => $questionIndex + 1])
-                             ->with('message', $message);
-        } else {
-            return redirect()->route('grammar.quiz.completeQuiz', ['course' => $courseSlug])
-                             ->with('message', $message);
-        }
+        return response()->json(['status' => 'success']);
     }
 
     public function completeQuiz($courseSlug)
     {
         $course = $this->getCourseBySlug($courseSlug);
         $questions = $course->questions;
-
         $answers = session()->get('answers', []);
-        $correctedAnswers = session()->get('corrected_answers', []);
-
+        $correctedAnswers = [];
         $score = 0;
-        $messages = [];
 
         foreach ($questions as $index => $question) {
             $userAnswer = $answers[$index] ?? null;
-            $correctedAnswer = $correctedAnswers[$index] ?? null;
+            $correctAnswer = $question->answers()->where('is_correct', true)->first();
 
-            if ($userAnswer && $userAnswer === $correctedAnswer) {
-                $score++;
-                $messages[$index] = 'OK';
-            } else {
-                $messages[$index] = 'Salah';
+            if ($correctAnswer) {
+                $correctAnswerText = $correctAnswer->answer_text;
+                if ($userAnswer && $userAnswer === $correctAnswerText) {
+                    $score++;
+                }
+                $correctedAnswers[$index] = $correctAnswerText;
             }
-
-            // Add correct answer to question object for the view
-            $question->correct_answer = $correctedAnswer;
         }
 
+        // Clear session data for answers after the quiz is completed
+        session()->forget('answers');
+        session()->forget('corrected_answers');
+
+        // Calculate points earned
+        $pointsEarned = $score;
+
+        // Update user points
         $user = Auth::user();
-        $user->points += $score;
+        $user->points += $pointsEarned;
         $user->save();
 
         return view('quiz_result', [
@@ -167,12 +141,56 @@ class GrammarController extends Controller
             'points' => $user->points,
             'answers' => $answers,
             'grammarResults' => $correctedAnswers,
-            'messages' => $messages,
-        ])->with('pointsEarned', $score);
+            'messages' => array_fill(0, count($questions), 'OK'),
+            'pointsEarned' => $pointsEarned,
+        ]);
     }
 
     protected function getCourseBySlug($slug)
     {
         return Course::where('slug', $slug)->firstOrFail();
     }
+
+    public function finishAttempt(Request $request, $courseSlug)
+    {
+        $course = $this->getCourseBySlug($courseSlug);
+        $totalQuestions = $course->questions()->count();
+        $answers = session()->get('answers', []);
+
+        foreach (range(1, $totalQuestions) as $questionIndex) {
+            $question = $course->questions()->skip($questionIndex - 1)->first();
+            $userAnswer = $answers[$questionIndex - 1] ?? null;
+
+            if ($question) {
+                $correctAnswer = $question->answers()->where('is_correct', true)->first();
+                if ($correctAnswer) {
+                    $correctedAnswers = session()->get('corrected_answers', []);
+                    $correctedAnswers[$questionIndex - 1] = $correctAnswer->answer_text;
+                    session()->put('corrected_answers', $correctedAnswers);
+
+                    if ($userAnswer && $userAnswer === $correctAnswer->answer_text) {
+                        $answers[$questionIndex - 1] = 'OK';
+                    } else {
+                        $answers[$questionIndex - 1] = 'Salah';
+                    }
+                } else {
+                    $answers[$questionIndex - 1] = 'No correct answer found for this question.';
+                }
+            }
+        }
+
+        session()->put('answers', $answers);
+
+        if (count($answers) < $totalQuestions) {
+            return redirect()->route('grammar.quiz.showQuestion', [
+                'course' => $courseSlug,
+                'questionIndex' => 1
+            ])->with('error', 'Anda belum menjawab semua pertanyaan.');
+        }
+
+        return redirect()->route('grammar.quiz.completeQuiz', ['course' => $courseSlug]);
+    }
+
+
+
 }

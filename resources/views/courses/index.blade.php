@@ -32,11 +32,11 @@
                             <div class="flex justify-center mt-4">
                                 @auth
                                     <button onclick="confirmAccess('{{ route('courses.show', $course->id) }}')" class="bg-blue-500 text-white px-4 py-2 rounded-full shadow hover:bg-blue-600 transition-colors">
-                                        Get access
+                                        Dapatkan akses
                                     </button>
                                 @else
                                     <button onclick="promptLoginOrSignUp()" class="bg-blue-500 text-white px-4 py-2 rounded-full shadow hover:bg-blue-600 transition-colors">
-                                        Get access
+                                        Dapatkan akses
                                     </button>
                                 @endauth
                             </div>
@@ -53,12 +53,12 @@
         function confirmAccess(url) {
             Swal.fire({
                 title: 'Are you sure?',
-                text: "Do you want to get access to this course?",
+                text: "Apakah Anda ingin mengakses ke kursus ini?",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, get access!'
+                confirmButtonText: 'Ya, dapatkan akses'
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = url;
