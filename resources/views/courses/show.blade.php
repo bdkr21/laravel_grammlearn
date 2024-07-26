@@ -109,14 +109,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
+        function initializeProgressBar() {
             console.log("DOM fully loaded and parsed");
             let startTime = Date.now();
             console.log("Start time: ", startTime);
 
             let circularProgress = document.getElementById('circular-progress');
             let progressText = document.getElementById('progress-text');
-            let totalTime = 3000; // Total time in seconds (5 minutes)
+            let totalTime = 3; // Total time in seconds (5 minutes)
 
             let interval = setInterval(() => {
                 let currentTime = Date.now();
@@ -136,7 +136,7 @@
                 circularProgress.style.setProperty('--progress', percentage + '%');
                 progressText.textContent = Math.round(percentage) + '%';
             }, 1000);
-        });
+        }
 
         function givePointsToUser() {
             fetch('/api/give-points', {
@@ -159,6 +159,8 @@
                 console.error('Error:', error);
             });
         }
+
+        document.addEventListener('DOMContentLoaded', initializeProgressBar);
 
         document.addEventListener('DOMContentLoaded', () => {
             const backButton = document.getElementById('back-button');

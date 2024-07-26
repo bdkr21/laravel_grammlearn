@@ -19,7 +19,7 @@ Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::post('/shop/buy/{id}', [ShopController::class, 'buy'])->name('shop.buy');
 
 
-// Route::post('/api/give-points', [PointController::class, 'givePoints'])->name('api.give-points');
+Route::post('/api/give-points', [CourseController::class, 'givePoints'])->name('api.give-points');
 
 
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
