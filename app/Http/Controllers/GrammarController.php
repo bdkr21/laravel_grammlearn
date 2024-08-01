@@ -105,21 +105,8 @@ class GrammarController extends Controller
         $course = $this->getCourseBySlug($courseSlug);
         $questions = $course->questions;
         $answers = session()->get('answers', []);
-        $correctedAnswers = [];
-        $score = 0;
-
-        foreach ($questions as $index => $question) {
-            $userAnswer = $answers[$index] ?? null;
-            $correctAnswer = $question->answers()->where('is_correct', true)->first();
-
-            if ($correctAnswer) {
-                $correctAnswerText = $correctAnswer->answer_text;
-                if ($userAnswer && $userAnswer === $correctAnswerText) {
-                    $score++;
-                }
-                $correctedAnswers[$index] = $correctAnswerText;
-            }
-        }
+        $correctedAnswers = session()->get('corrected_answers', []);
+        $score = session()->get('score', 0);
 
         // Clear session data for answers after the quiz is completed
         session()->forget('answers');
@@ -146,6 +133,7 @@ class GrammarController extends Controller
         ]);
     }
 
+
     protected function getCourseBySlug($slug)
     {
         return Course::where('slug', $slug)->firstOrFail();
@@ -157,6 +145,9 @@ class GrammarController extends Controller
         $totalQuestions = $course->questions()->count();
         $answers = session()->get('answers', []);
 
+        $correctedAnswers = [];
+        $score = 0;
+
         foreach (range(1, $totalQuestions) as $questionIndex) {
             $question = $course->questions()->skip($questionIndex - 1)->first();
             $userAnswer = $answers[$questionIndex - 1] ?? null;
@@ -164,11 +155,10 @@ class GrammarController extends Controller
             if ($question) {
                 $correctAnswer = $question->answers()->where('is_correct', true)->first();
                 if ($correctAnswer) {
-                    $correctedAnswers = session()->get('corrected_answers', []);
                     $correctedAnswers[$questionIndex - 1] = $correctAnswer->answer_text;
-                    session()->put('corrected_answers', $correctedAnswers);
 
                     if ($userAnswer && $userAnswer === $correctAnswer->answer_text) {
+                        $score++;
                         $answers[$questionIndex - 1] = 'OK';
                     } else {
                         $answers[$questionIndex - 1] = 'Salah';
@@ -180,6 +170,8 @@ class GrammarController extends Controller
         }
 
         session()->put('answers', $answers);
+        session()->put('corrected_answers', $correctedAnswers);
+        session()->put('score', $score);
 
         if (count($answers) < $totalQuestions) {
             return redirect()->route('grammar.quiz.showQuestion', [
@@ -190,7 +182,4 @@ class GrammarController extends Controller
 
         return redirect()->route('grammar.quiz.completeQuiz', ['course' => $courseSlug]);
     }
-
-
-
 }

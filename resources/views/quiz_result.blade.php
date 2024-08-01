@@ -16,23 +16,15 @@
         <ul class="space-y-4">
             @foreach($questions as $index => $question)
                 @php
-                    $isCorrect = isset($answers[$index]) && $answers[$index] === $question->correct_answer;
+                    $userAnswer = $answers[$index] ?? null;
+                    $correctAnswer = $correctedAnswers[$index] ?? null;
+                    $isCorrect = $userAnswer === $correctAnswer;
                 @endphp
                 <li class="p-4 bg-gray-50 border rounded-lg hover:shadow-lg transition-shadow">
                     <strong class="block text-lg">{{ $index + 1 }}. {{ $question->question }}</strong>
                     <span class="block mt-2">Your answer:
                         <span class="{{ $isCorrect ? 'text-green-600' : 'text-red-600' }}">
-                            {{ $answers[$index] ?? 'No answer' }}
-                        </span>
-                    </span>
-                    <span class="block mt-1">Correct answer:
-                        <span class="{{ $isCorrect ? 'text-green-600' : 'text-red-600' }}">
-                            {{ $question->correct_answer ?? 'No correct answer available' }}
-                        </span>
-                    </span>
-                    <span class="block mt-1">Result:
-                        <span class="{{ $isCorrect ? 'text-green-600' : 'text-red-600' }}">
-                            {{ $isCorrect ? 'OK' : 'Salah' }}
+                            {{ $userAnswer ?? 'No answer' }}
                         </span>
                     </span>
                 </li>
