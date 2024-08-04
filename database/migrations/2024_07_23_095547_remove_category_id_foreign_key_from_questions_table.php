@@ -12,8 +12,14 @@ return new class extends Migration
     public function up()
     {
         Schema::table('questions', function (Blueprint $table) {
-            $table->dropForeign(['category_id']);
-            $table->dropColumn('category_id');
+            // Menyimpan nama kunci asing yang benar berdasarkan output SHOW CREATE TABLE
+            $foreignKeyName = 'your_foreign_key_name_here'; // Ganti dengan nama kunci asing yang benar
+
+            // Hapus kunci asing jika ada
+            if (Schema::hasColumn('questions', 'category_id')) {
+                $table->dropForeign($foreignKeyName);
+                $table->dropColumn('category_id');
+            }
         });
     }
 

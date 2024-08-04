@@ -1,14 +1,17 @@
 <?php
 
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GrammarController;
-use App\Http\Controllers\MateriController;
 use App\Http\Controllers\DailyMissionController;
 use App\Http\Controllers\CourseController;
-use App\Http\Controllers\PointController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\QuizController;
+// use App\Http\Controllers\PointController;
 
 
 Route::get('/courses', [CourseController::class, 'index'])->name('index.courses');
@@ -17,7 +20,7 @@ Route::post('/courses/{id}/answers/{latihan}', [CourseController::class, 'storeA
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::post('/shop/buy/{id}', [ShopController::class, 'buy'])->name('shop.buy');
-
+Route::get('/fetch-items', [ShopController::class, 'fetchItems'])->name('fetch-items');
 
 Route::post('/api/give-points', [CourseController::class, 'givePoints'])->name('api.give-points');
 
@@ -61,5 +64,24 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+
+
+Route::middleware([AdminMiddleware::class])->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/admin/create', [AdminController::class, 'create'])->name('admin.create');
+    Route::post('/admin/store', [AdminController::class, 'store'])->name('admin.store');
+    Route::get('/admin/edit/{id}', [AdminController::class, 'edit'])->name('admin.edit');
+    Route::put('/admin/update/{id}', [AdminController::class, 'update'])->name('admin.update');
+    Route::delete('/admin/destroy/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
+
+    Route::get('/items/create-form', [ItemController::class, 'createForm'])->name('items.create-form');
+    Route::get('items/get-items', [AdminController::class, 'getItems']);
+
+    Route::resource('items', ItemController::class);
+    Route::resource('materi', CourseController::class);
+    Route::resource('quizzes', QuizController::class);
+});
+
 
 require __DIR__.'/auth.php';

@@ -62,10 +62,7 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         $points = $user->points;
-        // $unlockedCategories = $user->unlockedCategories;
-        // $unlockedCategoriesCount = $user->unlockedCategories()->count();
 
-        // return view('dashboard', compact('points', 'unlockedCategoriesCount', 'unlockedCategories'));
         return view('dashboard', compact('points'));
     }
 }

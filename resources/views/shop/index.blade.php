@@ -14,7 +14,7 @@
 <!-- Main Content -->
 <div class="container mx-auto p-5 grid grid-cols-1 lg:grid-cols-4 gap-6">
     <!-- Toko Items -->
-    <div class="lg:col-span-3">
+    <div class="lg:col-span-3" id="toko-items-container">
         <h1 class="text-2xl font-bold mb-5">Toko</h1>
         @if(session('success'))
             <div class="bg-green-500 text-white p-4 rounded mb-5 relative">
@@ -28,26 +28,8 @@
                 <button class="absolute top-1 right-2 text-white" onclick="this.parentElement.style.display='none'">×</button>
             </div>
         @endif
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach ($items as $item)
-            <div class="bg-white shadow-md rounded-lg p-4 relative">
-                <img src="{{ $item->image }}" alt="{{ $item->name }}" class="w-full h-48 object-cover mb-4 rounded">
-                <h2 class="text-xl font-bold">{{ $item->name }}</h2>
-                <p class="text-gray-600">{{ $item->description }}</p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-lg font-bold">{{ $item->price }} Points</span>
-                    @auth
-                        <form action="{{ route('shop.buy', $item->id) }}" method="POST" class="buy-form">
-                            @csrf
-                            <button type="button" class="buy-button bg-blue-500 text-white px-4 py-2 rounded" data-item-name="{{ $item->name }}" data-item-id="{{ $item->id }}">Beli</button>
-                        </form>
-                    @else
-                        <button onclick="promptLoginOrSignUp()" class="bg-blue-500 text-white px-4 py-2 rounded">Beli</button>
-                    @endauth
-                </div>
-                <span class="absolute top-0 right-0 m-2 bg-yellow-400 text-black px-2 py-1 rounded">New</span>
-            </div>
-            @endforeach
+        <div id="toko-items">
+            @include('shop.partials.items', ['items' => $items])
         </div>
     </div>
 
@@ -144,40 +126,64 @@
                     text: "Login",
                     value: 'login',
                     visible: true,
-                    className: "bg-green-500 text-white px-4 py-2 rounded",
+                    className: "bg-gray-800 text-white px-4 py-2 rounded",
                     closeModal: true
                 }
             }
         });
 
-        switch (value) {
-            case 'login':
-                window.location.href = '{{ route('login') }}';
-                break;
-            case 'sign_up':
-                window.location.href = '{{ route('register') }}';
-                break;
-            default:
-                break;
+        if (value) {
+            if (value === 'login') {
+                window.location.href = '/login';
+            } else if (value === 'sign_up') {
+                window.location.href = '/signup';
+            }
         }
     }
 
-    // Toastr notification for session messages
-    @if(session('success'))
-        toastr.success("{{ session('success') }}");
-    @endif
-
-    @if(session('error'))
-        toastr.error("{{ session('error') }}");
-    @endif
-
-    // Toggle modal
-    document.getElementById('openModal').addEventListener('click', function() {
-        document.getElementById('pointGuideModal').classList.remove('hidden');
+    document.querySelectorAll('.buy-button-guest').forEach(button => {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            promptLoginOrSignUp();
+        });
     });
-    document.getElementById('closeModal').addEventListener('click', function() {
-        document.getElementById('pointGuideModal').classList.add('hidden');
+
+    // Open and close modal for point guide
+    const modal = document.getElementById('pointGuideModal');
+    const openModalButton = document.getElementById('openModal');
+    const closeModalButton = document.getElementById('closeModal');
+
+    openModalButton.addEventListener('click', () => {
+        modal.classList.remove('hidden');
     });
+
+    closeModalButton.addEventListener('click', () => {
+        modal.classList.add('hidden');
+    });
+
+    $(document).ready(function () {
+    // Handle pagination click using AJAX
+    $(document).on('click', '.pagination a', function(event) {
+        event.preventDefault();
+        var page = $(this).attr('href').split('page=')[1];
+        fetch_data(page);
+    });
+
+    function fetch_data(page)
+    {
+        $.ajax({
+            url: "/fetch-items?page=" + page,
+            type: "GET",
+            success: function(data) {
+                $('#toko-items').html(data);
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
+    }
+});
+
 </script>
 
 </body>

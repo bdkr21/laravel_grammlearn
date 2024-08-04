@@ -9,14 +9,14 @@ class ShopController extends Controller
 {
     public function index()
     {
-        // Ambil semua item dari database
-        $items = Item::all();
+        // Fetch items with pagination
+        $items = Item::paginate(9);
         return view('shop.index', compact('items'));
     }
 
     public function buy(Request $request, $id)
     {
-        // Implementasi pembelian item menggunakan poin
+        // Purchase item using points
         $user = auth()->user();
         $item = Item::findOrFail($id);
 
@@ -24,9 +24,18 @@ class ShopController extends Controller
             $user->points -= $item->price;
             $user->save();
 
-            return redirect()->back()->with('success', 'Item berhasil dibeli!');
+            return redirect()->back()->with('success', 'Item successfully purchased!');
         } else {
-            return redirect()->back()->with('error', 'Poin Anda tidak mencukupi untuk membeli item ini.');
+            return redirect()->back()->with('error', 'You do not have enough points to purchase this item.');
         }
+    }
+
+    public function fetchItems(Request $request)
+    {
+        if ($request->ajax()) {
+            $items = Item::paginate(9);
+            return view('shop.partials.items', compact('items'))->render();
+        }
+        return redirect()->route('shop.index');
     }
 }

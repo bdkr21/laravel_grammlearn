@@ -22,6 +22,12 @@ class ItemController extends Controller
     public function create()
     {
         //
+        return view('admin.items.create');
+    }
+
+    public function createForm()
+    {
+        return view('admin.items.create');
     }
 
     /**
@@ -30,6 +36,14 @@ class ItemController extends Controller
     public function store(StoreItemRequest $request)
     {
         //
+        $data = $request->validated();
+        // if ($request->hasFile('image')) {
+        //     $data['image'] = $request->file('image')->store('images', 'public');
+        // }
+
+        Item::create($data);
+
+        return redirect()->route('dashboard')->with('success', 'Item created successfully.');
     }
 
     /**
@@ -62,5 +76,8 @@ class ItemController extends Controller
     public function destroy(Item $item)
     {
         //
+        $item->delete();
+
+        return redirect()->route('dashboard')->with('success', 'Item deleted successfully.');
     }
 }
