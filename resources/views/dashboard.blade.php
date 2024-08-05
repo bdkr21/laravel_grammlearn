@@ -214,7 +214,12 @@
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
             .then(html => {
                 document.getElementById(`${type}-content`).innerHTML = html;
                 history.pushState(null, '', `/${type}/get-items?page=${page}`);

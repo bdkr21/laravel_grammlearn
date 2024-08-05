@@ -47,17 +47,11 @@ Route::get('/grammar/quiz/{course}/previous-question/{questionIndex}', [GrammarC
 Route::get('/grammar/quiz/{course}/finish-attempt', [GrammarController::class, 'finishAttempt'])->name('grammar.quiz.finishAttempt');
 Route::post('/quiz/{course}/{questionIndex}/saveAnswer', [GrammarController::class, 'saveAnswer'])->name('grammar.quiz.saveAnswer');
 
-// Route::post('/quiz/{course}/question/{questionIndex}/submit', [GrammarController::class, 'submitAnswer'])->name('grammar.quiz.submitAnswer');
-// Route::post('/unlock-course', [GrammarController::class, 'unlockCourse'])->name('unlock.course');
 
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/grammar/quiz/{categorySlug}/confirm-open', [GrammarController::class, 'confirmOpenQuiz'])->name('grammar.quiz.confirmOpen');
     Route::post('/confirm-open-quiz/{categorySlug}', [GrammarController::class, 'confirmOpenQuiz'])->name('grammar.confirmOpenQuiz');
-
-    // Route::get('/dashboard', function () {
-    //     return view('dashboard');
-    // })->name('dashboard');
     Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -65,6 +59,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('courses/get-items', [AdminController::class, 'getCourses']);
 
 
 Route::middleware([AdminMiddleware::class])->group(function () {
@@ -76,7 +71,12 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::delete('/admin/destroy/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
 
     Route::get('/items/create-form', [ItemController::class, 'createForm'])->name('items.create-form');
+
     Route::get('items/get-items', [AdminController::class, 'getItems']);
+
+    Route::get('materi/get-items', [AdminController::class, 'getCourses']);
+    Route::get('quizzes/get-items', [AdminController::class, 'getQuizzes']);
+
 
     Route::resource('items', ItemController::class);
     Route::resource('materi', CourseController::class);

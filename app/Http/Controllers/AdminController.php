@@ -21,7 +21,7 @@ class AdminController extends Controller
 
         $points = Auth::user()->points;
         $items = Item::paginate(10);
-        $materis = Course::all();
+        $materis = Course::paginate(10);
         $quizzes = Question::all();
         return view('dashboard', compact('points', 'role', 'users','items','materis','quizzes'));
     }
@@ -84,8 +84,26 @@ class AdminController extends Controller
     public function getItems(Request $request)
     {
         if ($request->ajax()) {
-            $items = Item::paginate(10);
+            $items = Item::paginate(10); // Assuming you use pagination
             return view('components.admin.items-table', compact('items'))->render();
+        }
+        return redirect()->route('dashboard');
+    }
+
+    public function getCourses(Request $request)
+    {
+        if ($request->ajax()) {
+            $materis = Course::paginate(3); // Assuming you use pagination
+            return view('components.admin.materi-table', compact('materis'))->render();
+        }
+        return redirect()->route('dashboard');
+    }
+
+    public function getQuizzes(Request $request)
+    {
+        if ($request->ajax()) {
+            $quizzes = Quiz::paginate(10); // Assuming you use pagination
+            return view('components.admin.quizzes-table', compact('quizzes'))->render();
         }
         return redirect()->route('dashboard');
     }

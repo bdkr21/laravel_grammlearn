@@ -1,4 +1,4 @@
-<div id="quizzes-table" class="hidden">
+<div id="quizzes-table">
     <div class="mt-6">
         <table class="min-w-full bg-gray-100">
             <thead>

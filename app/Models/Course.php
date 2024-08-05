@@ -7,14 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Course extends Model
 {
-    public function index() {
-        $grammarTopics = Course::all()->groupBy('category');
-        return view('courses.index', ['grammarTopics' => $grammarTopics]);
-    }
-
     use HasFactory;
+    protected $fillable = [
+        'slug',
+        'title',
+        'description',
+    ];
 
-    protected $fillable = ['title', 'description', 'slug'];
 
     public function questions()
     {

@@ -1,4 +1,4 @@
-<div id="materi-table" class="hidden">
+<div id="materi-table">
     <div class="mt-6">
         <table class="min-w-full bg-gray-100">
             <thead>
@@ -11,7 +11,7 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @foreach($materis as $materi)
                 <tr>
-                    <td class="px-4 py-2">{{ $materi->name }}</td>
+                    <td class="px-4 py-2">{{ $materi->title }}</td>
                     <td class="px-4 py-2">{{ $materi->description }}</td>
                     <td class="px-4 py-2 flex space-x-2">
                         <a href="{{ route('materi.edit', $materi->id) }}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
@@ -30,4 +30,7 @@
             </tbody>
         </table>
     </div>
+</div>
+<div class="pagination">
+    {{ $materis->links() }}
 </div>

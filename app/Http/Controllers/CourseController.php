@@ -1,21 +1,70 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\UserAnswer;
 use Illuminate\Support\Facades\Auth;
+
 class CourseController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         $grammarTopics = Course::all()->groupBy('category');
         return view('courses.index', ['grammarTopics' => $grammarTopics]);
+    }
+
+    public function create()
+    {
+        return view('courses.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category' => 'required|string|max:255',
+        ]);
+
+        Course::create($request->all());
+
+        return redirect()->route('courses.index')->with('success', 'Course created successfully.');
     }
 
     public function show($id)
     {
         $course = Course::findOrFail($id);
         return view('courses.show', ['course' => $course]);
+    }
+
+    public function edit($id)
+    {
+        $course = Course::findOrFail($id);
+        return view('courses.edit', ['course' => $course]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category' => 'required|string|max:255',
+        ]);
+
+        $course = Course::findOrFail($id);
+        $course->update($request->all());
+
+        return redirect()->route('courses.index')->with('success', 'Course updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $course = Course::findOrFail($id);
+        $course->delete();
+
+        return redirect()->route('courses.index')->with('success', 'Course deleted successfully.');
     }
 
     public function storeAnswers(Request $request, $id, $latihan)
