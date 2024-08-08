@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\UserAnswer;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\UpdateMateriRequest;
 
 class CourseController extends Controller
 {
@@ -53,29 +54,30 @@ class CourseController extends Controller
 
     public function show($id)
     {
-        $course = Course::findOrFail($id);
-        return view('courses.show', ['course' => $course]);
+
     }
 
-    public function edit($id)
+    public function edit(Course $materi)
     {
-        $course = Course::findOrFail($id);
-        return view('courses.edit', ['course' => $course]);
+        return view('admin.materi.edit', compact('materi'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateMateriRequest $request, Course $materi)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'category' => 'required|string|max:255',
+        // Validasi data yang masuk
+        $validated = $request->validated();
+
+        // Update data kursus berdasarkan input yang diterima dari form
+        $materi->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'slug' => $validated['slug'],
         ]);
 
-        $course = Course::findOrFail($id);
-        $course->update($request->all());
-
-        return redirect()->route('courses.index')->with('success', 'Course updated successfully.');
+        // Redirect ke halaman yang diinginkan dengan pesan sukses
+        return redirect()->route('dashboard')->with('success', 'Materi berhasil diperbarui.');
     }
+
 
     public function destroy($id)
     {
@@ -117,5 +119,8 @@ class CourseController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Points added successfully']);
     }
-
+    public function index3()
+    {
+        return view('landing');
+    }
 }

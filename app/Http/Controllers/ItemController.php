@@ -54,6 +54,7 @@ class ItemController extends Controller
     public function edit(Item $item)
     {
         //
+        return view('admin.items.edit', compact('item'));
     }
 
     /**
@@ -61,7 +62,14 @@ class ItemController extends Controller
      */
     public function update(UpdateItemRequest $request, Item $item)
     {
-        //
+        // Validasi data yang di-submit
+        $data = $request->validated();
+
+        // Update item dengan data baru
+        $item->update($data);
+
+        // Redirect ke halaman dashboard dengan pesan sukses
+        return redirect()->route('dashboard')->with('success', 'Item updated successfully.');
     }
 
     /**
