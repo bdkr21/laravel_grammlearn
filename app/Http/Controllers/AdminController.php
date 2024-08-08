@@ -93,7 +93,7 @@ class AdminController extends Controller
     public function getCourses(Request $request)
     {
         if ($request->ajax()) {
-            $materis = Course::paginate(3); // Assuming you use pagination
+            $materis = Course::paginate(10); // Assuming you use pagination
             return view('components.admin.materi-table', compact('materis'))->render();
         }
         return redirect()->route('dashboard');

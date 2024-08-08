@@ -10,6 +10,8 @@ use App\Http\Controllers\GrammarController;
 use App\Http\Controllers\DailyMissionController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\HistoryRedeemController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\QuizController;
 // use App\Http\Controllers\PointController;
 
@@ -21,6 +23,11 @@ Route::post('/courses/{id}/answers/{latihan}', [CourseController::class, 'storeA
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::post('/shop/buy/{id}', [ShopController::class, 'buy'])->name('shop.buy');
 Route::get('/fetch-items', [ShopController::class, 'fetchItems'])->name('fetch-items');
+Route::post('/shop/redeem/{id}', [ShopController::class, 'redeem'])->name('shop.redeem');
+
+Route::get('/history-redeem', [HistoryRedeemController::class, 'index'])->name('history.redeem');
+
+Route::post('/inventory/redeem/{inventoryId}', [InventoryController::class, 'redeemItem'])->name('inventory.redeemItem');
 
 Route::post('/api/give-points', [CourseController::class, 'givePoints'])->name('api.give-points');
 
@@ -70,7 +77,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::put('/admin/update/{id}', [AdminController::class, 'update'])->name('admin.update');
     Route::delete('/admin/destroy/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
 
-    Route::get('/items/create-form', [ItemController::class, 'createForm'])->name('items.create-form');
+    // Route::get('/items/create-form', [ItemController::class, 'createForm'])->name('items.create-form');
 
     Route::get('items/get-items', [AdminController::class, 'getItems']);
 

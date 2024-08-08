@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Inventory;
 use App\Models\Item;
 
 class ShopController extends Controller
@@ -15,21 +16,37 @@ class ShopController extends Controller
     }
 
     public function buy(Request $request, $id)
-    {
-        // Purchase item using points
-        $user = auth()->user();
-        $item = Item::findOrFail($id);
+        {
+            $user = auth()->user();
+            $item = Item::findOrFail($id);
 
-        if ($user->points >= $item->price) {
-            $user->points -= $item->price;
-            $user->save();
+            if ($user->points >= $item->price) {
+                // Kurangi poin user
+                $user->points -= $item->price;
+                $user->save();
 
-            return redirect()->back()->with('success', 'Item successfully purchased!');
-        } else {
-            return redirect()->back()->with('error', 'You do not have enough points to purchase this item.');
+                // Simpan item ke inventory user
+                Inventory::create([
+                    'user_id' => $user->id,
+                    'item_id' => $item->id,
+                ]);
+
+                return redirect()->back()->with('success', 'Item successfully purchased and added to your inventory!');
+            } else {
+                return redirect()->back()->with('error', 'You do not have enough points to purchase this item.');
+            }
         }
-    }
+        public function redeem($id)
+    {
+        $user = auth()->user();
+        $inventory = Inventory::where('user_id', $user->id)->where('id', $id)->firstOrFail();
 
+        // Logika untuk meredeem item
+        $inventory->redeemed = true;
+        $inventory->save();
+
+        return redirect()->back()->with('success', 'Item successfully redeemed!');
+    }
     public function fetchItems(Request $request)
     {
         if ($request->ajax()) {

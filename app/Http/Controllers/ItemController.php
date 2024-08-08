@@ -24,12 +24,6 @@ class ItemController extends Controller
         //
         return view('admin.items.create');
     }
-
-    public function createForm()
-    {
-        return view('admin.items.create');
-    }
-
     /**
      * Store a newly created resource in storage.
      */

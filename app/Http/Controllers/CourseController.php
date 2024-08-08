@@ -9,6 +9,18 @@ use Illuminate\Support\Facades\Auth;
 
 class CourseController extends Controller
 {
+
+    private function generateSlug($string)
+    {
+        $slug = strtolower($string);
+        $slug = preg_replace('/[^a-z0-9\s-]/', '', $slug); // Remove all non-alphanumeric characters except spaces
+        $slug = trim($slug); // Remove leading/trailing spaces
+        $slug = preg_replace('/\s+/', '-', $slug); // Replace spaces with hyphens
+        $slug = preg_replace('/-+/', '-', $slug); // Replace multiple hyphens with a single hyphen
+
+        return $slug;
+    }
+
     public function index()
     {
         $grammarTopics = Course::all()->groupBy('category');
@@ -17,20 +29,26 @@ class CourseController extends Controller
 
     public function create()
     {
-        return view('courses.create');
+        return view('admin.materi.create');
     }
 
-    public function store(Request $request)
+        public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'category' => 'required|string|max:255',
         ]);
 
-        Course::create($request->all());
+        // Generate slug from title
+        $slug = $this->generateSlug($request->title);
 
-        return redirect()->route('courses.index')->with('success', 'Course created successfully.');
+        // Include slug in the request data
+        $data = $request->all();
+        $data['slug'] = $slug;
+
+        Course::create($data);
+
+        return redirect()->route('dashboard')->with('success', 'Course created successfully.');
     }
 
     public function show($id)
@@ -64,7 +82,7 @@ class CourseController extends Controller
         $course = Course::findOrFail($id);
         $course->delete();
 
-        return redirect()->route('courses.index')->with('success', 'Course deleted successfully.');
+        return redirect()->route('dashboard')->with('success', 'Course deleted successfully.');
     }
 
     public function storeAnswers(Request $request, $id, $latihan)
@@ -99,4 +117,5 @@ class CourseController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Points added successfully']);
     }
+
 }

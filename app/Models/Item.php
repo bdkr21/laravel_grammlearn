@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Inventory;
+use App\Models\HistoryRedeem;
 
 class Item extends Model
 {
@@ -14,4 +16,13 @@ class Item extends Model
         'price',
         'image',
     ];
+
+    public function inventories()
+    {
+        return $this->hasMany(Inventory::class);
+    }
+    public function historyRedeems()
+    {
+        return $this->hasMany(HistoryRedeem::class);
+    }
 }

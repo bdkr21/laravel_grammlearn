@@ -23,6 +23,9 @@
                         <a href="{{ route('profile.edit') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
                             {{ __('Profile') }}
                         </a>
+                        <a href="{{ route('history.redeem') }}" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded">
+                            {{ __('History Redeem') }}
+                        </a>
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
                             <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
@@ -31,6 +34,38 @@
                         </form>
                     </div>
                 </div>
+
+                <!-- Bagian Inventory di Dashboard -->
+                <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6 mt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('My Inventory') }}</h3>
+
+                    <!-- Toaster Notification -->
+                    @if(session('success'))
+                        <div id="toast-success" class="fixed top-0 right-0 mt-4 mr-4 bg-green-500 text-white p-4 rounded shadow-lg">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach(Auth::user()->inventories as $inventory)
+                            <div class="bg-gray-100 p-4 rounded-lg shadow-md">
+                                <h4 class="text-xl font-semibold">{{ $inventory->item->name }}</h4>
+                                <p class="text-gray-700 mb-4">{{ $inventory->item->description }}</p>
+                                <p class="text-gray-500">{{ __('Purchased on: ') . $inventory->created_at->format('d M Y') }}</p>
+                                @if (!$inventory->redeemed)
+                                    <form action="{{ route('inventory.redeemItem', $inventory->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded mt-4">
+                                            {{ __('Redeem') }}
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                    @if(Auth::user()->inventories->isEmpty())
+                        <p class="text-gray-500 mt-4">{{ __('You do not have any items in your inventory.') }}</p>
+                    @endif
 
                 @if(Auth::user()->role === 'admin')
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -48,7 +83,7 @@
                         <a href="#" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded block text-center mb-2" onclick="showModal('materi')">
                             {{ __('Manage Materi') }}
                         </a>
-                        <a href="{{ route('materi.create') }}" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded block text-center">
+                        <a href="#" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded block text-center" onclick="showAddCourseModal()">
                             {{ __('Add New Materi') }}
                         </a>
                     </div>
@@ -57,7 +92,7 @@
                         <a href="#" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded block text-center mb-2" onclick="showModal('quizzes')">
                             {{ __('Manage Quizzes') }}
                         </a>
-                        <a href="{{ route('quizzes.create') }}" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded block text-center">
+                        <a href="" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded block text-center" onclick="showAddQuizModal()">
                             {{ __('Add New Quiz') }}
                         </a>
                     </div>
@@ -157,7 +192,35 @@
         }
 
         function showAddItemModal() {
-            fetch('/items/create-form', {
+            fetch('/items/create', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('add-item-modal-content').innerHTML = html;
+                document.getElementById('add-item-modal').classList.remove('hidden');
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function showAddCourseModal() {
+            fetch('/materi/create', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('add-item-modal-content').innerHTML = html;
+                document.getElementById('add-item-modal').classList.remove('hidden');
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function showAddQuizModal() {
+            fetch('/course/create', {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
@@ -226,5 +289,14 @@
             })
             .catch(error => console.error('Error:', error));
         }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const toast = document.getElementById('toast-success');
+        if (toast) {
+            setTimeout(() => {
+                toast.remove();
+            }, 3000); // Menghilangkan toaster setelah 3 detik
+        }
+    });
     </script>
 </x-app-layout>
