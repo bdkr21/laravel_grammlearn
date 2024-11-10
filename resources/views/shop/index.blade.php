@@ -136,7 +136,7 @@
             if (value === 'login') {
                 window.location.href = '/login';
             } else if (value === 'sign_up') {
-                window.location.href = '/signup';
+                window.location.href = '/register';
             }
         }
     }

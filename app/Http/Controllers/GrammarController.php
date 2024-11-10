@@ -8,6 +8,7 @@ use App\Models\Question;
 use App\Models\Answer;
 use Illuminate\Support\Facades\Auth;
 use App\Services\GrammarService;
+use App\Models\UserAnswer;
 
 class GrammarController extends Controller
 {
@@ -181,5 +182,19 @@ class GrammarController extends Controller
         }
 
         return redirect()->route('grammar.quiz.completeQuiz', ['course' => $courseSlug]);
+    }
+    public function removeAnswer($courseSlug, $questionIndex)
+    {
+        // Hapus jawaban untuk pertanyaan tertentu dari session
+        $answers = session()->get('answers', []);
+
+        if (isset($answers[$questionIndex - 1])) {
+            unset($answers[$questionIndex - 1]); // Menghapus jawaban untuk pertanyaan yang ditentukan
+            session()->put('answers', $answers); // Simpan kembali ke session
+
+            return response()->json(['status' => 'success']);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Answer not found.'], 404);
     }
 }

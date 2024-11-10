@@ -53,6 +53,7 @@ Route::get('/quiz/result/{course}', [GrammarController::class, 'quizResult'])->n
 Route::get('/grammar/quiz/{course}/previous-question/{questionIndex}', [GrammarController::class, 'previousQuestion'])->name('grammar.quiz.previousQuestion');
 Route::get('/grammar/quiz/{course}/finish-attempt', [GrammarController::class, 'finishAttempt'])->name('grammar.quiz.finishAttempt');
 Route::post('/quiz/{course}/{questionIndex}/saveAnswer', [GrammarController::class, 'saveAnswer'])->name('grammar.quiz.saveAnswer');
+Route::delete('/courses/{course}/quiz/{questionIndex}/remove-answer', [GrammarController::class, 'removeAnswer'])->name('grammar.quiz.removeAnswer');
 
 
 

@@ -7,6 +7,28 @@
     <title>{{ $course->title }} Quiz</title>
     @vite('resources/css/app.css')
     <style>
+        body {
+            font-family: Arial, sans-serif; /* Menggunakan font yang lebih bersih */
+        }
+        .container {
+            max-width: 800px; /* Membatasi lebar maksimum */
+            margin: auto; /* Mengatur margin otomatis untuk pusat */
+            padding: 20px; /* Menambahkan padding */
+        }
+        .quiz-header h1 {
+            margin-bottom: 10px; /* Menambahkan margin bawah */
+        }
+        .question-card {
+            padding: 20px; /* Menambahkan padding lebih pada kartu pertanyaan */
+            border: 1px solid #ddd; /* Menambahkan border */
+            border-radius: 8px; /* Membulatkan sudut */
+        }
+        .btn-primary {
+            transition: background-color 0.3s, transform 0.3s; /* Menambahkan transisi */
+        }
+        .btn-primary:hover {
+            transform: scale(1.05); /* Efek zoom saat hover */
+        }
         .btn-primary {
             background-color: #1d4ed8;
             border: none;
@@ -24,11 +46,12 @@
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
             max-width: 300px; /* Adjust as needed */
             margin: 0 auto; /* Center the container */
-            justify-content: center;
+            justify-content: space-around;
         }
         .card {
-            width: 50px;
-            height: 50px;
+            width: 60px; /* Ukuran kartu yang lebih besar */
+            height: 60px; /* Ukuran kartu yang lebih besar */
+            font-size: 20px; /* Ukuran font lebih besar */
             border-radius: 5px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
             background-color: #e5e7eb;
@@ -92,6 +115,9 @@
                             <p class="text-red-500">No options available for this question.</p>
                         @endif
                     </div>
+                    <div class="text-center mt-4">
+                        <button id="remove-answer-button" class="btn-primary py-2 text-white rounded-lg">Remove Answer</button>
+                    </div>
                 </form>
             </div>
         @else
@@ -108,53 +134,150 @@
             @endfor
         </div>
         <div class="text-center mt-4">
-            <a href="{{ route('grammar.quiz.finishAttempt', ['course' => $course->slug]) }}" class="btn-primary w-full py-2 text-white rounded-lg">Finish Attempt</a>
+            @if($questionIndex == $totalQuestions || $questionIndex == $totalQuestions - 1)
+                <a id="finish-button" href="{{ route('grammar.quiz.finishAttempt', ['course' => $course->slug]) }}" class="btn-primary w-full py-2 text-white rounded-lg">Finish Attempt</a>
+            @endif
         </div>
     </div>
     <div id="scroll-buttons" class="fixed bottom-20 right-20 z-50 flex flex-col items-center space-y-2">
         <button id="back-button" class="bg-gray-500 text-white rounded-full w-12 h-12 shadow-md">Back</button>
     </div>
-
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('quiz-form');
-            const radios = form.querySelectorAll('input[type="radio"]');
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    document.addEventListener('DOMContentLoaded', () => {
+        const totalQuestions = {{ $totalQuestions }};
+        const questionIndex = {{ $questionIndex }}; // Pastikan ini ada di sini
+        const form = document.getElementById('quiz-form');
+        const radios = form.querySelectorAll('input[type="radio"]');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const finishButton = document.getElementById('finish-button');
+        const removeAnswerButton = document.getElementById('remove-answer-button');
+        const backButton = document.getElementById('back-button');
 
-            radios.forEach(radio => {
-                radio.addEventListener('change', () => {
-                    const formData = new FormData(form);
-                    const url = '{{ route('grammar.quiz.saveAnswer', ['course' => $course->slug, 'questionIndex' => $questionIndex]) }}';
+        backButton.addEventListener('click', () => {
+            window.location.href = '{{ url('/quiz') }}'; // Mengarahkan ke halaman utama
+        });
 
-                    fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json',
-                        },
-                        body: formData,
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            // Update the navigation card to show it is answered
-                            const card = document.querySelector(`.card-container a:nth-child(${ {{ $questionIndex }} })`);
-                            if (card) {
-                                card.classList.add('answered');
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-                });
+        if (finishButton) {
+            finishButton.addEventListener('click', () => {
+                const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
+                if (Object.keys(savedAnswers).length < totalQuestions) {
+                    alert('Please ensure all questions are answered before finishing the quiz.');
+                    return; // Prevent finishing the quiz
+                }
+                localStorage.removeItem('quizAnswers'); // Clear saved answers
             });
+        }
+        // Load saved answers from local storage
+        const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
+        if (savedAnswers[questionIndex]) {
+            const selectedOption = savedAnswers[questionIndex];
+            const radioToCheck = form.querySelector(`input[type="radio"][value="${selectedOption}"]`);
+            if (radioToCheck) {
+                radioToCheck.checked = true; // Check the saved radio button
+            }
+        }
+        // Save answer to local storage
+        form.addEventListener('change', () => {
+            const formData = new FormData(form);
+            const selectedAnswer = formData.get('answer'); // Get the selected answer
+            savedAnswers[questionIndex] = selectedAnswer;
+            localStorage.setItem('quizAnswers', JSON.stringify(savedAnswers));
+        });
+        // Build the URL for removing answers
+        const removeAnswerUrl = '{{ route('grammar.quiz.removeAnswer', ['course' => $course->slug, 'questionIndex' => '__questionIndex__']) }}';
 
-            const backButton = document.getElementById('back-button');
-            backButton.addEventListener('click', () => {
-                window.history.back();
+        // Build the URL for saving answers
+        const saveAnswerUrl = '{{ route('grammar.quiz.saveAnswer', ['course' => $course->slug, 'questionIndex' => '__questionIndex__']) }}';
+
+        // Function to check if all questions are answered
+        function checkAllAnswered() {
+            const answeredCount = document.querySelectorAll('.card.answered').length;
+            finishButton.disabled = answeredCount < totalQuestions;
+
+            if (answeredCount === totalQuestions) {
+                finishButton.classList.remove('hidden');
+            } else {
+                finishButton.classList.add('hidden');
+            }
+        }
+
+        const removeAnswerButtons = document.querySelectorAll('.remove-answer-button');
+
+        removeAnswerButton.addEventListener('click', (event) => {
+            event.preventDefault(); // Mencegah perilaku default form
+
+            const url = removeAnswerUrl.replace('__questionIndex__', questionIndex); // Pastikan questionIndex sesuai
+
+            fetch(url, {
+                method: 'DELETE', // Ubah metode ke DELETE
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Menghapus jawaban dari UI
+                    const card = document.querySelector(`.card-container a:nth-child(${questionIndex})`);
+                    if (card) {
+                        card.classList.remove('answered'); // Menghapus kelas answered dari UI
+                    }
+                    // Reset radio buttons
+                    const radios = form.querySelectorAll(`input[name="answer"]`);
+                    radios.forEach(radio => {
+                        radio.checked = false; // Uncheck all radio buttons for this question
+                    });
+
+                    // Hapus jawaban dari local storage
+                    const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
+                    delete savedAnswers[questionIndex.toString()]; // Hapus jawaban untuk questionIndex ini
+                    localStorage.setItem('quizAnswers', JSON.stringify(savedAnswers)); // Simpan kembali ke local storage
+
+                    checkAllAnswered(); // Recheck if all questions are answered
+
+                    // Refresh halaman setelah jawaban berhasil dihapus
+                    location.reload();
+                } else {
+                    console.error('Error removing answer:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
             });
         });
-    </script>
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                const formData = new FormData(form);
+                const url = saveAnswerUrl.replace('__questionIndex__', questionIndex); // Menyusun URL dengan benar
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const card = document.querySelector(`.card-container a:nth-child(${questionIndex})`);
+                        if (card) {
+                            card.classList.add('answered');
+                        }
+                        checkAllAnswered(); // Update the finish button state
+                    } else {
+                        console.error('Error saving answer:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+</script>
 </body>
 </html>
