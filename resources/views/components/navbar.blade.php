@@ -60,6 +60,16 @@
 <script src="//unpkg.com/alpinejs" defer></script>
 
 <script>
+
+    document.getElementById('logout-form').addEventListener('click', function(event) {
+        event.preventDefault();
+
+        // Menghapus data dari local storage
+        localStorage.clear();
+
+        // Mengirimkan form logout
+        document.getElementById('logout-form').submit();
+    });
     // Alpine.js untuk toggle dropdown
     document.addEventListener('alpine:init', () => {
         Alpine.data('navbarDropdown', () => ({

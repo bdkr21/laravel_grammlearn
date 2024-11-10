@@ -54,7 +54,8 @@ class CourseController extends Controller
 
     public function show($id)
     {
-
+        $course = Course::findOrFail($id); // Ambil kursus berdasarkan ID
+        return view('courses.show', compact('course')); // Kembalikan tampilan show dengan data kursus
     }
 
     public function edit(Course $materi)

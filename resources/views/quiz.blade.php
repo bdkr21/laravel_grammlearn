@@ -125,7 +125,6 @@
                 <p class="text-gray-600">No question found.</p>
             </div>
         @endif
-
         <div class="card-container">
             @for ($i = 1; $i <= $totalQuestions; $i++)
                 <a href="{{ route('grammar.quiz.showQuestion', ['course' => $course->slug, 'questionIndex' => $i]) }}" class="card {{ $i == $questionIndex ? 'current' : '' }} {{ isset($answers[$i - 1]) ? 'answered' : '' }}">
@@ -135,7 +134,7 @@
         </div>
         <div class="text-center mt-4">
             @if($questionIndex == $totalQuestions || $questionIndex == $totalQuestions - 1)
-                <a id="finish-button" href="{{ route('grammar.quiz.finishAttempt', ['course' => $course->slug]) }}" class="btn-primary w-full py-2 text-white rounded-lg">Finish Attempt</a>
+                <button id="finish-button" class="btn-primary w-full py-2 text-white rounded-lg">Finish Attempt</button>
             @endif
         </div>
     </div>
@@ -143,141 +142,144 @@
         <button id="back-button" class="bg-gray-500 text-white rounded-full w-12 h-12 shadow-md">Back</button>
     </div>
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const totalQuestions = {{ $totalQuestions }};
-        const questionIndex = {{ $questionIndex }}; // Pastikan ini ada di sini
-        const form = document.getElementById('quiz-form');
-        const radios = form.querySelectorAll('input[type="radio"]');
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        const finishButton = document.getElementById('finish-button');
-        const removeAnswerButton = document.getElementById('remove-answer-button');
-        const backButton = document.getElementById('back-button');
+        document.addEventListener('DOMContentLoaded', () => {
+            const totalQuestions = {{ $totalQuestions }};
+            const questionIndex = {{ $questionIndex }};
+            const form = document.getElementById('quiz-form');
+            const radios = form.querySelectorAll('input[type="radio"]');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const removeAnswerButton = document.getElementById('remove-answer-button');
+            const backButton = document.getElementById('back-button');
 
-        backButton.addEventListener('click', () => {
-            window.location.href = '{{ url('/quiz') }}'; // Mengarahkan ke halaman utama
-        });
-
-        if (finishButton) {
-            finishButton.addEventListener('click', () => {
-                const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
-                if (Object.keys(savedAnswers).length < totalQuestions) {
-                    alert('Please ensure all questions are answered before finishing the quiz.');
-                    return; // Prevent finishing the quiz
-                }
-                localStorage.removeItem('quizAnswers'); // Clear saved answers
+            backButton.addEventListener('click', () => {
+                window.location.href = '{{ url('/quiz') }}';
             });
-        }
-        // Load saved answers from local storage
-        const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
-        if (savedAnswers[questionIndex]) {
-            const selectedOption = savedAnswers[questionIndex];
-            const radioToCheck = form.querySelector(`input[type="radio"][value="${selectedOption}"]`);
-            if (radioToCheck) {
-                radioToCheck.checked = true; // Check the saved radio button
-            }
-        }
-        // Save answer to local storage
-        form.addEventListener('change', () => {
-            const formData = new FormData(form);
-            const selectedAnswer = formData.get('answer'); // Get the selected answer
-            savedAnswers[questionIndex] = selectedAnswer;
-            localStorage.setItem('quizAnswers', JSON.stringify(savedAnswers));
-        });
-        // Build the URL for removing answers
-        const removeAnswerUrl = '{{ route('grammar.quiz.removeAnswer', ['course' => $course->slug, 'questionIndex' => '__questionIndex__']) }}';
-
-        // Build the URL for saving answers
-        const saveAnswerUrl = '{{ route('grammar.quiz.saveAnswer', ['course' => $course->slug, 'questionIndex' => '__questionIndex__']) }}';
-
-        // Function to check if all questions are answered
-        function checkAllAnswered() {
-            const answeredCount = document.querySelectorAll('.card.answered').length;
-            finishButton.disabled = answeredCount < totalQuestions;
-
-            if (answeredCount === totalQuestions) {
-                finishButton.classList.remove('hidden');
-            } else {
-                finishButton.classList.add('hidden');
-            }
-        }
-
-        const removeAnswerButtons = document.querySelectorAll('.remove-answer-button');
-
-        removeAnswerButton.addEventListener('click', (event) => {
-            event.preventDefault(); // Mencegah perilaku default form
-
-            const url = removeAnswerUrl.replace('__questionIndex__', questionIndex); // Pastikan questionIndex sesuai
-
-            fetch(url, {
-                method: 'DELETE', // Ubah metode ke DELETE
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // Menghapus jawaban dari UI
-                    const card = document.querySelector(`.card-container a:nth-child(${questionIndex})`);
-                    if (card) {
-                        card.classList.remove('answered'); // Menghapus kelas answered dari UI
-                    }
-                    // Reset radio buttons
-                    const radios = form.querySelectorAll(`input[name="answer"]`);
-                    radios.forEach(radio => {
-                        radio.checked = false; // Uncheck all radio buttons for this question
+            const finishButton = document.getElementById('finish-button');
+            if (finishButton) {
+                finishButton.addEventListener('click', (event) => {
+                    event.preventDefault(); // Mencegah perilaku default tombol
+                    const url = '{{ route('grammar.quiz.finishAttempt', ['course' => $course->slug]) }}'; // URL untuk mengakhiri attempt
+                    // Mengirimkan permintaan ke server
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Tindakan setelah berhasil, misalnya mengarahkan ke halaman hasil
+                            window.location.href = '{{ route('grammar.quiz.completeQuiz', ['course' => $course->slug]) }}';
+                        } else {
+                            console.error('Error finishing attempt:', data.message);
+                            alert('Gagal mengakhiri attempt. Silakan coba lagi.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Network error:', error);
+                        alert('Gagal mengakhiri attempt. Silakan coba lagi.');
                     });
-
-                    // Hapus jawaban dari local storage
-                    const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
-                    delete savedAnswers[questionIndex.toString()]; // Hapus jawaban untuk questionIndex ini
-                    localStorage.setItem('quizAnswers', JSON.stringify(savedAnswers)); // Simpan kembali ke local storage
-
-                    checkAllAnswered(); // Recheck if all questions are answered
-
-                    // Refresh halaman setelah jawaban berhasil dihapus
-                    location.reload();
-                } else {
-                    console.error('Error removing answer:', data.message);
+                });
+            }
+            // Save answer to local storage
+            const saveAnswerToLocal = (index, answer) => {
+                const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
+                savedAnswers[index] = answer;
+                localStorage.setItem('quizAnswers', JSON.stringify(savedAnswers));
+            };
+            // Remove answer from local storage
+            const removeAnswerFromLocal = (index) => {
+                const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
+                delete savedAnswers[index];
+                localStorage.setItem('quizAnswers', JSON.stringify(savedAnswers));
+            };
+            // Load saved answers from local storage and display them only if they exist
+            const loadSavedAnswers = () => {
+                const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
+                if (savedAnswers.hasOwnProperty(questionIndex)) { // Only load if answer exists
+                    const selectedOption = savedAnswers[questionIndex];
+                    const radioToCheck = form.querySelector(`input[type="radio"][value="${selectedOption}"]`);
+                    if (radioToCheck) {
+                        radioToCheck.checked = true; // Check the saved radio button
+                    }
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+            };
+            // Sync answers to server
+            const syncAnswersToServer = () => {
+                const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
+                for (const [index, answer] of Object.entries(savedAnswers)) {
+                    const url = '{{ route('grammar.quiz.saveAnswer', ['course' => $course->slug, 'questionIndex' => '__questionIndex__']) }}'.replace('__questionIndex__', index);
+                    const formData = new FormData();
+                    formData.append('answer', answer);
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: formData,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            const card = document.querySelector(`.card-container a:nth-child(${index})`);
+                            if (card) {
+                                card.classList.add('answered');
+                            }
+                        } else {
+                            console.error('Error syncing answer:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Network error:', error);
+                        alert('Jawaban belum tersimpan ke server, akan diulang ketika koneksi kembali.');
+                    });
+                }
+            };
+            // Load saved answers on page load
+            loadSavedAnswers();
+            // Save answer on form change
+            form.addEventListener('change', () => {
+                const selectedAnswer = new FormData(form).get('answer');
+                saveAnswerToLocal(questionIndex, selectedAnswer); // Save answer to local storage
+                syncAnswersToServer(); // Try syncing answer to server
             });
-        });
-
-        radios.forEach(radio => {
-            radio.addEventListener('change', () => {
-                const formData = new FormData(form);
-                const url = saveAnswerUrl.replace('__questionIndex__', questionIndex); // Menyusun URL dengan benar
-
+            // Remove answer button event
+            removeAnswerButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                const url = '{{ route('grammar.quiz.removeAnswer', ['course' => $course->slug, 'questionIndex' => '__questionIndex__']) }}'.replace('__questionIndex__', questionIndex);
                 fetch(url, {
-                    method: 'POST',
+                    method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json',
                     },
-                    body: formData,
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
+                        removeAnswerFromLocal(questionIndex); // Remove answer from local storage
                         const card = document.querySelector(`.card-container a:nth-child(${questionIndex})`);
                         if (card) {
-                            card.classList.add('answered');
+                            card.classList.remove('answered');
                         }
-                        checkAllAnswered(); // Update the finish button state
+                        radios.forEach(radio => {
+                            radio.checked = false;
+                        });
                     } else {
-                        console.error('Error saving answer:', data.message);
+                        console.error('Error removing answer:', data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    alert('Gagal menghapus jawaban dari server. Coba lagi nanti.');
                 });
             });
+            // Resync answers when online
+            window.addEventListener('online', syncAnswersToServer);
         });
-    });
-</script>
+        </script>
 </body>
 </html>

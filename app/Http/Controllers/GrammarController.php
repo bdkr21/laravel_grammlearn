@@ -145,7 +145,6 @@ class GrammarController extends Controller
         $course = $this->getCourseBySlug($courseSlug);
         $totalQuestions = $course->questions()->count();
         $answers = session()->get('answers', []);
-
         $correctedAnswers = [];
         $score = 0;
 
@@ -167,9 +166,9 @@ class GrammarController extends Controller
                 } else {
                     $answers[$questionIndex - 1] = 'No correct answer found for this question.';
                 }
+                return response()->json(['status' => 'success']);
             }
         }
-
         session()->put('answers', $answers);
         session()->put('corrected_answers', $correctedAnswers);
         session()->put('score', $score);
@@ -180,7 +179,6 @@ class GrammarController extends Controller
                 'questionIndex' => 1
             ])->with('error', 'Anda belum menjawab semua pertanyaan.');
         }
-
         return redirect()->route('grammar.quiz.completeQuiz', ['course' => $courseSlug]);
     }
     public function removeAnswer($courseSlug, $questionIndex)
