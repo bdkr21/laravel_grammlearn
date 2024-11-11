@@ -119,7 +119,6 @@ class GrammarController extends Controller
 
         // Ambil jawaban dari permintaan
         $answers = $request->input('answers', []); // Pastikan 'answers' adalah array jawaban yang dikirim
-
         // Validasi apakah jawaban yang diterima adalah array
         if (!is_array($answers)) {
             return response()->json(['status' => 'error', 'message' => 'Jawaban tidak valid.'], 400);

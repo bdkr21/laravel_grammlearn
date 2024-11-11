@@ -146,156 +146,174 @@
             const totalQuestions = {{ $totalQuestions }};
             const questionIndex = {{ $questionIndex }};
             const form = document.getElementById('quiz-form');
-            const radios = form.querySelectorAll('input[type="radio"]');
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const removeAnswerButton = document.getElementById('remove-answer-button');
             const backButton = document.getElementById('back-button');
+            const finishButton = document.getElementById('finish-button');
 
+            // Function to navigate back to quiz
             backButton.addEventListener('click', () => {
                 window.location.href = '{{ url('/quiz') }}';
             });
-            const finishButton = document.getElementById('finish-button');
-            if (finishButton) {
-                finishButton.addEventListener('click', (event) => {
-                    event.preventDefault(); // Mencegah perilaku default tombol
-                    const url = '{{ route('grammar.quiz.finishAttempt', ['course' => $course->slug]) }}'; // URL untuk mengakhiri attempt
 
-                    // Ambil data jawaban dari local storage
-                    const quizAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || [];
+            const populateAnswers = () => {
+                const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
+                const selectedAnswer = savedAnswers[questionIndex];
 
-                    const payload = {
-                        answers: quizAnswers, // Kirim jawaban kuis
-                    };
-                    fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json', // Pastikan untuk menambahkan header ini
-                        },
-                        body: JSON.stringify(payload), // Mengubah payload menjadi format JSON
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Response from server:', data);
-                        if (data.status === 'success') {
-                            // Hapus jawaban dari local storage setelah selesai
-                            console.log('ngorok');
-                            localStorage.removeItem('quizAnswers');
-                            window.location.href = '{{ route('grammar.quiz.completeQuiz', ['course' => $course->slug]) }}';
-                        } else {
-                            console.error('Error finishing attempt:', data.message);
-                            alert('Gagal mengakhiri attempt. Silakan coba lagi.');
+                if (selectedAnswer) {
+                    const radioButtons = form.querySelectorAll('input[name="answer"]');
+                    radioButtons.forEach(radio => {
+                        if (radio.value === selectedAnswer) {
+                            radio.checked = true; // Set the radio button as checked
                         }
-                    })
-                    .catch(error => {
-                        console.error('Network error:', error);
-                        alert('Gagal mengakhiri attempt. Silakan coba lagi.');
                     });
-                });
-            }
-            // Save answer to local storage
-            const saveAnswerToLocal = (index, answer) => {
-                const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
-                if (answer) {
-                    savedAnswers[index] = answer; // Save the answer for the current question
-                } else {
-                    delete savedAnswers[index]; // Remove the answer if no selection
                 }
-                localStorage.setItem('quizAnswers', JSON.stringify(savedAnswers));
             };
-            // Remove answer from local storage
-            const removeAnswerFromLocal = (index) => {
+
+            // Call the function to populate answers
+            populateAnswers();
+
+            // Function to finish the quiz attempt
+            const finishQuizAttempt = async () => {
+            const url = '{{ route('grammar.quiz.finishAttempt', ['course' => $course->slug]) }}';
+            const answers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
+            console.log('Stored answers:', answers);
+            const payload = { answers }; // Menggunakan answers secara langsung
+
+            console.log('Payload to send:', payload); // Debugging
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    localStorage.removeItem('quizAnswers');
+                    window.location.href = '{{ route('grammar.quiz.completeQuiz', ['course' => $course->slug]) }}';
+                } else {
+                    alert('Gagal mengakhiri attempt. Silakan coba lagi.');
+                }
+            } catch (error) {
+                console.error('Error finishing quiz attempt:', error); // Debugging
+                alert('Gagal mengakhiri attempt. Silakan coba lagi.');
+            }
+        };
+
+        // Event listener for finishing the quiz
+        if (finishButton) {
+            finishButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                finishQuizAttempt();
+            });
+        }
+
+            // Load answered cards
+            const loadAnsweredCards = () => {
                 const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
-                delete savedAnswers[index];
-                localStorage.setItem('quizAnswers', JSON.stringify(savedAnswers));
-            };
-            // Load saved answers from local storage and display them only if they exist
-            const loadSavedAnswers = () => {
-                const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
-                // Load answer for the current question
-                if (savedAnswers.hasOwnProperty(questionIndex)) {
-                    const selectedOption = savedAnswers[questionIndex];
-                    const radioToCheck = form.querySelector(`input[type="radio"][value="${selectedOption}"]`);
-                    if (radioToCheck) {
-                        radioToCheck.checked = true; // Check the saved radio button
+                for (const index in savedAnswers) {
+                    const card = document.querySelector(`.card-container a:nth-child(${parseInt(index)})`);
+                    if (card) {
+                        card.classList.add('answered');
                     }
                 }
             };
-            // Sync answers to server
-            const syncAnswersToServer = () => {
+
+            // Sync answers to the server
+            const syncAnswersToServer = async (questionIndex) => {
                 const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
-                for (const [index, answer] of Object.entries(savedAnswers)) {
-                    const url = '{{ route('grammar.quiz.saveAnswer', ['course' => $course->slug, 'questionIndex' => '__questionIndex__']) }}'.replace('__questionIndex__', index);
+                const answer = savedAnswers[questionIndex];
+
+                if (answer) {
+                    const url = '{{ route('grammar.quiz.saveAnswer', ['course' => $course->slug, 'questionIndex' => '__questionIndex__']) }}'.replace('__questionIndex__', questionIndex);
                     const formData = new FormData();
                     formData.append('answer', answer);
-                    fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json',
-                        },
-                        body: formData,
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            const card = document.querySelector(`.card-container a:nth-child(${index})`);
+
+                    console.log(`Sending answer for question ${questionIndex} to ${url}`);
+
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
+                            },
+                            body: formData,
+                        });
+
+                        console.log('Response:', response);
+                        const data = await response.json();
+                        console.log('Data:', data);
+
+                        if (response.ok && data.status === 'success') {
+                            const card = document.querySelector(`.card-container a:nth-child(${questionIndex})`);
                             if (card) {
                                 card.classList.add('answered');
                             }
                         } else {
-                            console.error('Error syncing answer:', data.message);
+                            console.error('Error saving answer:', data);
+                            alert('Gagal menyimpan jawaban: ' + (data.message || 'Silakan coba lagi.'));
                         }
-                    })
-                    .catch(error => {
+                    } catch (error) {
                         console.error('Network error:', error);
                         alert('Jawaban belum tersimpan ke server, akan diulang ketika koneksi kembali.');
-                    });
+                    }
                 }
             };
-            // Load saved answers on page load
-            loadSavedAnswers();
-            // Save answer on form change
+            const saveAnswerToLocal = (questionIndex, answer) => {
+                const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
+                savedAnswers[questionIndex] = answer;
+                localStorage.setItem('quizAnswers', JSON.stringify(savedAnswers));
+            };
+            // Event listener untuk form change
             form.addEventListener('change', () => {
                 const selectedAnswer = new FormData(form).get('answer');
-                saveAnswerToLocal(questionIndex, selectedAnswer); // Save answer to local storage
-                syncAnswersToServer(); // Try syncing answer to server
+                if (selectedAnswer) {
+                    // Simpan jawaban ke localStorage
+                    saveAnswerToLocal(questionIndex, selectedAnswer);
+                    // Sinkronkan hanya untuk soal yang sedang diubah
+                    syncAnswersToServer(questionIndex);
+                }
             });
-            // Remove answer button event
-            removeAnswerButton.addEventListener('click', (event) => {
+
+            // Event listener for removing answer
+            removeAnswerButton.addEventListener('click', async (event) => {
                 event.preventDefault();
                 const url = '{{ route('grammar.quiz.removeAnswer', ['course' => $course->slug, 'questionIndex' => '__questionIndex__']) }}'.replace('__questionIndex__', questionIndex);
-                fetch(url, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json',
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
+                try {
+                    const response = await fetch(url, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                    });
+                    const data = await response.json();
                     if (data.status === 'success') {
-                        removeAnswerFromLocal(questionIndex); // Remove answer from local storage
+                        removeAnswerFromLocal(questionIndex);
                         const card = document.querySelector(`.card-container a:nth-child(${questionIndex})`);
                         if (card) {
                             card.classList.remove('answered');
                         }
-                        radios.forEach(radio => {
-                            radio.checked = false;
-                        });
+                        form.reset(); // Reset the form to clear selected answers
                     } else {
                         console.error('Error removing answer:', data.message);
                     }
-                })
-                .catch(error => {
+                } catch (error) {
                     console.error('Error:', error);
                     alert('Gagal menghapus jawaban dari server. Coba lagi nanti.');
-                });
+                }
             });
-            // Resync answers when online
-            window.addEventListener('online', syncAnswersToServer);
+
+            // Load answered cards on page load
+            loadAnsweredCards();
         });
-        </script>
+    </script>
 </body>
 </html>
