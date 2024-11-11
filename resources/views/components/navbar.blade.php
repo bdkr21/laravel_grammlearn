@@ -28,14 +28,11 @@
                                 {{ Auth::user()->name }}
                             </button>
                             <div x-show="open" @click="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-20" aria-labelledby="navbarDropdown">
-                                {{-- <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-default" href="#">Points: {{ Auth::user()->points }}</a> --}}
                                 <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" href="{{ route('dashboard') }}">Dashboard</a>
                                 <div class="border-t border-gray-200"></div>
-                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" href="{{ route('logout') }}"
-                                onclick="event.preventDefault();
-                                            document.getElementById('logout-form').submit();">
+                                <button class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="logoutAndClearStorage()">
                                     Log Out
-                                </a>
+                                </button>
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
                                     @csrf
                                 </form>
@@ -60,16 +57,15 @@
 <script src="//unpkg.com/alpinejs" defer></script>
 
 <script>
+    // Fungsi logout dan hapus localStorage
+    function logoutAndClearStorage() {
+        // Hapus item dari localStorage
+        localStorage.removeItem('quizAnswers');
 
-    document.getElementById('logout-form').addEventListener('click', function(event) {
-        event.preventDefault();
-
-        // Menghapus data dari local storage
-        localStorage.clear();
-
-        // Mengirimkan form logout
+        // Submit formulir logout
         document.getElementById('logout-form').submit();
-    });
+    }
+
     // Alpine.js untuk toggle dropdown
     document.addEventListener('alpine:init', () => {
         Alpine.data('navbarDropdown', () => ({
@@ -80,23 +76,3 @@
         }))
     })
 </script>
-{{-- <script>
-    // Toggle dropdown
-    document.getElementById('navbarDropdown').addEventListener('click', function () {
-        var dropdown = this.nextElementSibling;
-        dropdown.classList.toggle('hidden');
-    });
-
-    // Close dropdown when clicking outside
-    window.addEventListener('click', function (e) {
-        if (!e.target.matches('#navbarDropdown')) {
-            var dropdowns = document.getElementsByClassName('dropdown-menu');
-            for (var i = 0; i < dropdowns.length; i++) {
-                var openDropdown = dropdowns[i];
-                if (!openDropdown.classList.contains('hidden')) {
-                    openDropdown.classList.add('hidden');
-                }
-            }
-        }
-    });
-</script> --}}

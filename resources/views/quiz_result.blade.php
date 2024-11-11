@@ -17,7 +17,8 @@
         <ul class="space-y-4">
             @foreach($questions as $index => $question)
                 @php
-                    $userAnswer = $answers[$index] ?? null;
+                    // Mengambil jawaban pengguna dan jawaban yang benar
+                    $userAnswer = $answers[$index] ?? 'No answer';
                     $correctAnswer = $correctedAnswers[$index] ?? null;
                     $isCorrect = $userAnswer === $correctAnswer;
                 @endphp
@@ -25,7 +26,12 @@
                     <strong class="block text-lg">{{ $index + 1 }}. {{ $question->question }}</strong>
                     <span class="block mt-2">Your answer:
                         <span class="{{ $isCorrect ? 'text-green-600' : 'text-red-600' }}">
-                            {{ $userAnswer ?? 'No answer' }}
+                            {{ $userAnswer }}
+                        </span>
+                    </span>
+                    <span class="block">Correct answer:
+                        <span class="text-green-600">
+                            {{ $correctAnswer ?? 'No correct answer' }}
                         </span>
                     </span>
                 </li>
@@ -34,9 +40,10 @@
 
         <div class="text-lg mt-6">Points earned in this quiz: {{ $pointsEarned }}</div>
 
-        <a href="{{ route('quiz') }}" class="mt-6 inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-            Back to Courses
-        </a>
+        <a href="{{ route('quiz.finish', ['course' => $course->slug]) }}"
+            class="mt-6 inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+             Back to Courses
+         </a>
     </div>
     <script src="{{ asset('js/app.js') }}"></script>
 </body>

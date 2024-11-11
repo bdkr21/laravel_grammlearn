@@ -169,7 +169,6 @@
                     });
                 }
             };
-
             // Call the function to populate answers
             populateAnswers();
 
@@ -177,10 +176,7 @@
             const finishQuizAttempt = async () => {
             const url = '{{ route('grammar.quiz.finishAttempt', ['course' => $course->slug]) }}';
             const answers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
-            console.log('Stored answers:', answers);
-            const payload = { answers }; // Menggunakan answers secara langsung
-
-            console.log('Payload to send:', payload); // Debugging
+            const payload = { answers };
 
             try {
                 const response = await fetch(url, {
@@ -194,18 +190,20 @@
                 });
 
                 const data = await response.json();
-                if (data.status === 'success') {
-                    localStorage.removeItem('quizAnswers');
+
+                if (response.ok && data.status === 'success') {
+                    // console.log('Jawaban pengguna yang terkirim:', payload); // Debugging
                     window.location.href = '{{ route('grammar.quiz.completeQuiz', ['course' => $course->slug]) }}';
+                    localStorage.removeItem('quizAnswers');
                 } else {
-                    alert('Gagal mengakhiri attempt. Silakan coba lagi.');
+                    console.error('Gagal mengakhiri attempt:', data); // Debugging
+                    alert('Gagal mengakhiri attempt. Silakan coba lagi. Detail: ' + (data.message || 'Tidak diketahui.'));
                 }
             } catch (error) {
                 console.error('Error finishing quiz attempt:', error); // Debugging
                 alert('Gagal mengakhiri attempt. Silakan coba lagi.');
             }
         };
-
         // Event listener for finishing the quiz
         if (finishButton) {
             finishButton.addEventListener('click', (event) => {
