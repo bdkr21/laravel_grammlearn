@@ -13,6 +13,7 @@ class CreateUserAnswersTable extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('course_id')->constrained()->onDelete('cascade');
+            $table->integer('question_index');
             $table->text('answers'); // JSON format for storing answers
             $table->timestamps();
         });
@@ -23,4 +24,3 @@ class CreateUserAnswersTable extends Migration
         Schema::dropIfExists('user_answers');
     }
 }
-

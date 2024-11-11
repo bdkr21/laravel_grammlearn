@@ -10,7 +10,6 @@ use App\Http\Requests\UpdateMateriRequest;
 
 class CourseController extends Controller
 {
-
     private function generateSlug($string)
     {
         $slug = strtolower($string);
@@ -18,7 +17,6 @@ class CourseController extends Controller
         $slug = trim($slug); // Remove leading/trailing spaces
         $slug = preg_replace('/\s+/', '-', $slug); // Replace spaces with hyphens
         $slug = preg_replace('/-+/', '-', $slug); // Replace multiple hyphens with a single hyphen
-
         return $slug;
     }
 
@@ -27,12 +25,10 @@ class CourseController extends Controller
         $grammarTopics = Course::all()->groupBy('category');
         return view('courses.index', ['grammarTopics' => $grammarTopics]);
     }
-
     public function create()
     {
         return view('admin.materi.create');
     }
-
         public function store(Request $request)
     {
         $request->validate([
@@ -78,8 +74,6 @@ class CourseController extends Controller
         // Redirect ke halaman yang diinginkan dengan pesan sukses
         return redirect()->route('dashboard')->with('success', 'Materi berhasil diperbarui.');
     }
-
-
     public function destroy($id)
     {
         $course = Course::findOrFail($id);
@@ -93,7 +87,6 @@ class CourseController extends Controller
         $request->validate([
             'answers' => 'required|array',
         ]);
-
         $answers = new UserAnswer([
             'user_id' => auth()->id(),
             'course_id' => $id,
@@ -105,7 +98,6 @@ class CourseController extends Controller
 
         return redirect()->route('courses.show', $id)->with('success', "Your answers for Latihan $latihan have been submitted.");
     }
-
     public function givePoints(Request $request)
     {
         $user = Auth::user();
@@ -114,7 +106,6 @@ class CourseController extends Controller
         if (!$user || !$courseId) {
             return response()->json(['success' => false, 'message' => 'Invalid request'], 400);
         }
-
         $user->points += 10;
         $user->save();
 

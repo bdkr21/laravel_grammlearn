@@ -159,18 +159,29 @@
                 finishButton.addEventListener('click', (event) => {
                     event.preventDefault(); // Mencegah perilaku default tombol
                     const url = '{{ route('grammar.quiz.finishAttempt', ['course' => $course->slug]) }}'; // URL untuk mengakhiri attempt
-                    // Mengirimkan permintaan ke server
+
+                    // Ambil data jawaban dari local storage
+                    const quizAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || [];
+
+                    const payload = {
+                        answers: quizAnswers, // Kirim jawaban kuis
+                    };
                     fetch(url, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': csrfToken,
                             'Accept': 'application/json',
+                            'Content-Type': 'application/json', // Pastikan untuk menambahkan header ini
                         },
+                        body: JSON.stringify(payload), // Mengubah payload menjadi format JSON
                     })
                     .then(response => response.json())
                     .then(data => {
+                        console.log('Response from server:', data);
                         if (data.status === 'success') {
-                            // Tindakan setelah berhasil, misalnya mengarahkan ke halaman hasil
+                            // Hapus jawaban dari local storage setelah selesai
+                            console.log('ngorok');
+                            localStorage.removeItem('quizAnswers');
                             window.location.href = '{{ route('grammar.quiz.completeQuiz', ['course' => $course->slug]) }}';
                         } else {
                             console.error('Error finishing attempt:', data.message);
@@ -186,7 +197,11 @@
             // Save answer to local storage
             const saveAnswerToLocal = (index, answer) => {
                 const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
-                savedAnswers[index] = answer;
+                if (answer) {
+                    savedAnswers[index] = answer; // Save the answer for the current question
+                } else {
+                    delete savedAnswers[index]; // Remove the answer if no selection
+                }
                 localStorage.setItem('quizAnswers', JSON.stringify(savedAnswers));
             };
             // Remove answer from local storage
@@ -198,7 +213,8 @@
             // Load saved answers from local storage and display them only if they exist
             const loadSavedAnswers = () => {
                 const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
-                if (savedAnswers.hasOwnProperty(questionIndex)) { // Only load if answer exists
+                // Load answer for the current question
+                if (savedAnswers.hasOwnProperty(questionIndex)) {
                     const selectedOption = savedAnswers[questionIndex];
                     const radioToCheck = form.querySelector(`input[type="radio"][value="${selectedOption}"]`);
                     if (radioToCheck) {

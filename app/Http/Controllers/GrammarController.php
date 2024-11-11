@@ -35,7 +35,6 @@ class GrammarController extends Controller
             'questionIndex' => 1
         ]);
     }
-
     public function showQuestion($courseSlug, $questionIndex)
     {
         $course = Course::where('slug', $courseSlug)->firstOrFail();
@@ -91,50 +90,81 @@ class GrammarController extends Controller
 
     public function saveAnswer(Request $request, $courseSlug, $questionIndex)
     {
-        $course = Course::where('slug', $courseSlug)->firstOrFail();
-        $answers = $request->session()->get('answers', []);
-        $userAnswer = $request->input('answer');
-        $answers[$questionIndex - 1] = $userAnswer;
+        $request->validate([
+            'answer' => 'required|string', // Validasi jawaban
+        ]);
 
-        $request->session()->put('answers', $answers);
+        // Ambil kursus berdasarkan slug
+        $course = $this->getCourseBySlug($courseSlug);
+
+        // Simpan jawaban pengguna ke database atau session
+        $user = Auth::user();
+        $userAnswer = new UserAnswer(); // Misalkan Anda memiliki model UserAnswer
+        $userAnswer->user_id = $user->id;
+        $userAnswer->course_id = $course->id;
+        $userAnswer->question_index = $questionIndex;
+        $userAnswer->answer = $request->input('answer');
+        $userAnswer->save();
 
         return response()->json(['status' => 'success']);
     }
 
-    public function completeQuiz($courseSlug)
+    public function completeQuiz(Request $request, $courseSlug)
     {
+        // Ambil kursus berdasarkan slug
         $course = $this->getCourseBySlug($courseSlug);
+
+        // Ambil pertanyaan terkait kursus
         $questions = $course->questions;
-        $answers = session()->get('answers', []);
-        $correctedAnswers = session()->get('corrected_answers', []);
-        $score = session()->get('score', 0);
 
-        // Clear session data for answers after the quiz is completed
-        session()->forget('answers');
-        session()->forget('corrected_answers');
+        // Ambil jawaban dari permintaan
+        $answers = $request->input('answers', []); // Pastikan 'answers' adalah array jawaban yang dikirim
 
-        // Calculate points earned
-        $pointsEarned = $score;
+        // Validasi apakah jawaban yang diterima adalah array
+        if (!is_array($answers)) {
+            return response()->json(['status' => 'error', 'message' => 'Jawaban tidak valid.'], 400);
+        }
 
-        // Update user points
+        // Hitung skor berdasarkan jawaban
+        $score = $this->calculateScore($answers, $questions);
+
+        // Update poin pengguna
         $user = Auth::user();
-        $user->points += $pointsEarned;
+        $user->points += $score;
         $user->save();
 
+        // Kembalikan hasil kuis ke view
         return view('quiz_result', [
             'course' => $course,
             'questions' => $questions,
             'totalQuestions' => $questions->count(),
             'score' => $score,
             'points' => $user->points,
-            'answers' => $answers,
-            'grammarResults' => $correctedAnswers,
+            'answers' => $answers, // Kirim jawaban yang diberikan
+            'grammarResults' => [], // Sesuaikan jika Anda memiliki hasil grammar
             'messages' => array_fill(0, count($questions), 'OK'),
-            'pointsEarned' => $pointsEarned,
+            'pointsEarned' => $score,
         ]);
     }
+    protected function calculateScore(array $userAnswers, $questions)
+    {
+        $score = 0;
 
+        foreach ($questions as $index => $question) {
+            // Ambil jawaban yang benar untuk pertanyaan ini
+            $correctAnswer = $question->answers()->where('is_correct', true)->first();
 
+            // Cek apakah jawaban pengguna sesuai dengan jawaban yang benar
+            if ($correctAnswer) {
+                // Pastikan jawaban pengguna ada dan cocok dengan jawaban yang benar
+                if (isset($userAnswers[$index]) && $userAnswers[$index] === $correctAnswer->answer_text) {
+                    $score++; // Tambahkan satu poin jika jawaban benar
+                }
+            }
+        }
+
+        return $score; // Kembalikan total skor
+    }
     protected function getCourseBySlug($slug)
     {
         return Course::where('slug', $slug)->firstOrFail();
