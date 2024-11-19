@@ -9,34 +9,38 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
     <div class="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
-        <h1 class="text-3xl font-bold text-blue-600 mb-4">{{ $course->title }} Quiz Result</h1>
-        <p class="text-lg">Congratulations! You have completed the quiz.</p>
-        <div class="text-xl font-semibold mt-4">Your score: {{ $score }} out of {{ $totalQuestions }}</div>
-        <div class="text-lg mt-2 mb-6">Total points: {{ $points }}</div>
+        <h1 class="text-3xl font-bold text-blue-600 mb-4">Hasil Kuis {{ $course->title }} </h1>
+        <p class="text-lg">Selamat kamu telah menyelesaikan kuis ini.</p>
+        <div class="text-xl font-semibold mt-4">Score kamu adalah: {{ $score }} dari {{ $totalQuestions }} soal</div>
+        <br>
+            <ul class="space-y-4">
+                @foreach($questions as $index => $question)
+                    @php
+                        // Mengambil jawaban pengguna dan jawaban yang benar
+                        $userAnswer = $userAnswers[$index + 1] ?? 'No answer';
+                        $correctAnswer = $correctedAnswers[$index] ?? null;
+                        $isCorrect = $userAnswer === $correctAnswer;
+                    @endphp
+                    <li class="p-4 border rounded-lg cursor-pointer hover:shadow-lg transition-shadow
+                        {{ $isCorrect ? 'bg-green-100 border-green-500' : 'bg-red-100 border-red-500' }}"
+                        onclick="toggleDetails(this)">
+                        <strong class="block text-lg">{{ $index + 1 }}. {{ $question->question }}</strong>
+                        <div class="details hidden mt-2">
+                            <span class="block">Jawaban anda:
+                                <span class="{{ $isCorrect ? 'text-green-600 font-bold' : 'text-red-600 font-bold' }}">
+                                    {{ $userAnswer }}
+                                </span>
+                            </span>
+                            <span class="block">jawaban yang benar:
+                                <span class="text-green-600">
+                                    {{ $correctAnswer ?? 'No correct answer' }}
+                                </span>
+                            </span>
+                        </div>
+                    </li>
+                @endforeach
+            </ul>
 
-        <ul class="space-y-4">
-            @foreach($questions as $index => $question)
-                @php
-                    // Mengambil jawaban pengguna dan jawaban yang benar
-                    $userAnswer = $answers[$index] ?? 'No answer';
-                    $correctAnswer = $correctedAnswers[$index] ?? null;
-                    $isCorrect = $userAnswer === $correctAnswer;
-                @endphp
-                <li class="p-4 bg-gray-50 border rounded-lg hover:shadow-lg transition-shadow">
-                    <strong class="block text-lg">{{ $index + 1 }}. {{ $question->question }}</strong>
-                    <span class="block mt-2">Your answer:
-                        <span class="{{ $isCorrect ? 'text-green-600' : 'text-red-600' }}">
-                            {{ $userAnswer }}
-                        </span>
-                    </span>
-                    <span class="block">Correct answer:
-                        <span class="text-green-600">
-                            {{ $correctAnswer ?? 'No correct answer' }}
-                        </span>
-                    </span>
-                </li>
-            @endforeach
-        </ul>
 
         <div class="text-lg mt-6">Points earned in this quiz: {{ $pointsEarned }}</div>
 
@@ -46,5 +50,13 @@
          </a>
     </div>
     <script src="{{ asset('js/app.js') }}"></script>
+    <script>
+        function toggleDetails(card) {
+            const details = card.querySelector('.details');
+            if (details) {
+                details.classList.toggle('hidden'); // Menambahkan/menghapus kelas "hidden"
+            }
+        }
+    </script>
 </body>
 </html>

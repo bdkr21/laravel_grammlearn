@@ -16,26 +16,36 @@ class ShopController extends Controller
     }
 
     public function buy(Request $request, $id)
-        {
-            $user = auth()->user();
-            $item = Item::findOrFail($id);
+    {
+        $user = auth()->user();
+        $item = Item::findOrFail($id);
 
-            if ($user->points >= $item->price) {
-                // Kurangi poin user
-                $user->points -= $item->price;
-                $user->save();
-
-                // Simpan item ke inventory user
-                Inventory::create([
-                    'user_id' => $user->id,
-                    'item_id' => $item->id,
-                ]);
-
-                return redirect()->back()->with('success', 'Item successfully purchased and added to your inventory!');
-            } else {
-                return redirect()->back()->with('error', 'You do not have enough points to purchase this item.');
-            }
+        // Cek apakah quantity item cukup
+        if ($item->quantity < 1) {
+            return redirect()->back()->with('error', 'This item is out of stock.');
         }
+
+        // Cek apakah user memiliki poin yang cukup
+        if ($user->points >= $item->price) {
+            // Kurangi poin user
+            $user->points -= $item->price;
+            $user->save();
+
+            // Simpan item ke inventory user
+            Inventory::create([
+                'user_id' => $user->id,
+                'item_id' => $item->id,
+            ]);
+
+            // Kurangi quantity item
+            $item->quantity -= 1;
+            $item->save();
+
+            return redirect()->back()->with('success', 'Item successfully purchased and added to your inventory!');
+        } else {
+            return redirect()->back()->with('error', 'You do not have enough points to purchase this item.');
+        }
+    }
         public function redeem($id)
     {
         $user = auth()->user();

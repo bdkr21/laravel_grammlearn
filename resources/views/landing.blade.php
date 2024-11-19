@@ -143,8 +143,8 @@
                     <p class="text-gray-600">Uji keterampilan Anda dalam berbagai kategori grammar dan lacak kemajuan Anda.</p>
                 </div>
                 <div class="feature">
-                    <h3 class="text-xl font-semibold mb-2">Peroleh Poin & Lencana</h3>
-                    <p class="text-gray-600">Buka kategori baru dan dapatkan poin serta lencana saat Anda meningkatkan kemampuan grammar Anda.</p>
+                    <h3 class="text-xl font-semibold mb-2">Perolehan Poin</h3>
+                    <p class="text-gray-600">Dapatkan poin saat Anda meningkatkan kemampuan grammar Anda.</p>
                 </div>
             </div>
         </div>

@@ -25,6 +25,7 @@ class UpdateItemRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric',
+            'quantity' => 'required|numeric',
             // Hapus atau tambahkan field lain sesuai kebutuhan
         ];
     }

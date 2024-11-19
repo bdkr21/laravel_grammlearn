@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Course;
-use App\Models\UserAnswer;
+// use App\Models\UserAnswer;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\UpdateMateriRequest;
 
@@ -29,7 +29,7 @@ class CourseController extends Controller
     {
         return view('admin.materi.create');
     }
-        public function store(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
@@ -82,22 +82,22 @@ class CourseController extends Controller
         return redirect()->route('dashboard')->with('success', 'Course deleted successfully.');
     }
 
-    public function storeAnswers(Request $request, $id, $latihan)
-    {
-        $request->validate([
-            'answers' => 'required|array',
-        ]);
-        $answers = new UserAnswer([
-            'user_id' => auth()->id(),
-            'course_id' => $id,
-            'latihan' => $latihan,
-            'answers' => $request->input('answers'),
-        ]);
+    // public function storeAnswers(Request $request, $id, $latihan)
+    // {
+    //     $request->validate([
+    //         'answers' => 'required|array',
+    //     ]);
+    //     $answers = new UserAnswer([
+    //         'user_id' => auth()->id(),
+    //         'course_id' => $id,
+    //         'latihan' => $latihan,
+    //         'answers' => $request->input('answers'),
+    //     ]);
 
-        $answers->save();
+    //     $answers->save();
 
-        return redirect()->route('courses.show', $id)->with('success', "Your answers for Latihan $latihan have been submitted.");
-    }
+    //     return redirect()->route('courses.show', $id)->with('success', "Your answers for Latihan $latihan have been submitted.");
+    // }
     public function givePoints(Request $request)
     {
         $user = Auth::user();

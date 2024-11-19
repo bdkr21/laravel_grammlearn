@@ -15,6 +15,8 @@ class Item extends Model
         'description',
         'price',
         'image',
+        'quantity',
+
     ];
 
     public function inventories()

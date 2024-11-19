@@ -118,14 +118,26 @@
                         </a>
                     </div>
                 </div>
-                @endif
 
-                @if(Auth::user()->role === 'admin')
+
+
                 <div id="items-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden modal">
                     <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white modal-content">
                         <div class="mt-3 text-center">
                             <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Manage Items') }}</h3>
+
+                            <!-- Input search -->
+                            <div class="mb-4">
+                                <input
+                                    type="text"
+                                    id="search"
+                                    placeholder="Search items..."
+                                    class="mt-1 p-2 w-full border rounded"
+                                    oninput="filterTable()"
+                                />
+                            </div>
                             <div id="items-content">
+
                                 <!-- The content for managing items will be loaded here -->
                             </div>
                             <button type="button" class="mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded w-full" onclick="hideModal('items')">
@@ -165,15 +177,21 @@
 
                 <div id="add-item-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden modal">
                     <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white modal-content">
-                        <div class="mt-3 text-center">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Add New Item') }}</h3>
-                            <div id="add-item-modal-content">
-                                <!-- The content for adding a new item will be loaded here -->
-                            </div>
-                            <button type="button" class="mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded w-full" onclick="hideAddItemModal()">
-                                {{ __('Close') }}
-                            </button>
-                        </div>
+
+                        @include('admin.items.create')
+                        <button type="button" class="mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded" onclick="hideAddModal('add-item-modal')">
+                            {{ __('Close') }}
+                        </button>
+                    </div>
+                </div>
+
+                <div id="add-materi-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden modal">
+                    <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white modal-content">
+
+                        @include('admin.materi.create')
+                        <button type="button" class="mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded" onclick="hideAddModal('add-materi-modal')">
+                            {{ __('Close') }}
+                        </button>
                     </div>
                 </div>
                 @endif
@@ -182,71 +200,56 @@
     </div>
 
     <script>
+        function showAddItemModal() {
+            document.getElementById('add-item-modal').classList.remove('hidden');
+        }
+
+        function showAddCourseModal() {
+            document.getElementById('add-materi-modal').classList.remove('hidden');
+        }
+
+        function showAddQuizModal() {
+            document.getElementById('add-quiz-modal').classList.remove('hidden');
+        }
+        function hideAddModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+
+                // Cari form di dalam modal dan reset isinya
+                const form = modal.querySelector('form');
+                if (form) {
+                    form.reset();
+                }
+
+                if (modalId === 'items') {
+                    document.getElementById('search').value = '';
+                    const rows = document.querySelectorAll('#items-table table tbody tr');
+                    rows.forEach(row => row.style.display = '');
+                }
+            }
+        }
         function showModal(type) {
             document.getElementById(`${type}-modal`).classList.remove('hidden');
             loadTable(type); // Load table content when the modal is opened
         }
-
         function hideModal(type) {
             document.getElementById(`${type}-modal`).classList.add('hidden');
         }
-
-        function showAddItemModal() {
-            fetch('/items/create', {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('add-item-modal-content').innerHTML = html;
-                document.getElementById('add-item-modal').classList.remove('hidden');
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
-        function showAddCourseModal() {
-            fetch('/materi/create', {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('add-item-modal-content').innerHTML = html;
-                document.getElementById('add-item-modal').classList.remove('hidden');
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
-        function showAddQuizModal() {
-            fetch('/course/create', {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('add-item-modal-content').innerHTML = html;
-                document.getElementById('add-item-modal').classList.remove('hidden');
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
-        function hideAddItemModal() {
-            document.getElementById('add-item-modal').classList.add('hidden');
-        }
-
         function filterTable() {
             const input = document.getElementById('search');
             const filter = input.value.toLowerCase();
-            const table = document.querySelector('#items-table table tbody');
+            const table = document.querySelector('#items-table tbody');
+            if (!table) {
+                console.error('Table or tbody not found');
+                return;
+            }
             const rows = table.getElementsByTagName('tr');
             for (let i = 0; i < rows.length; i++) {
                 const cells = rows[i].getElementsByTagName('td');
                 let match = false;
                 for (let j = 0; j < cells.length; j++) {
-                    if (cells[j].innerText.toLowerCase().indexOf(filter) > -1) {
+                    if (cells[j].innerText.toLowerCase().includes(filter)) {
                         match = true;
                         break;
                     }
@@ -254,6 +257,7 @@
                 rows[i].style.display = match ? '' : 'none';
             }
         }
+
 
         function confirmDelete(event) {
             if (!confirm('Are you sure you want to delete this item?')) {
