@@ -115,9 +115,9 @@
                             <p class="text-red-500">No options available for this question.</p>
                         @endif
                     </div>
-                    <div class="text-center mt-4">
+                    {{-- <div class="text-center mt-4">
                         <button id="remove-answer-button" class="btn-primary py-2 text-white rounded-lg">Remove Answer</button>
-                    </div>
+                    </div> --}}
                 </form>
             </div>
         @else
@@ -281,33 +281,33 @@
             });
 
             // Event listener for removing answer
-            removeAnswerButton.addEventListener('click', async (event) => {
-                event.preventDefault();
-                const url = '{{ route('grammar.quiz.removeAnswer', ['course' => $course->slug, 'questionIndex' => '__questionIndex__']) }}'.replace('__questionIndex__', questionIndex);
-                try {
-                    const response = await fetch(url, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json',
-                        },
-                    });
-                    const data = await response.json();
-                    if (data.status === 'success') {
-                        removeAnswerFromLocal(questionIndex);
-                        const card = document.querySelector(`.card-container a:nth-child(${questionIndex})`);
-                        if (card) {
-                            card.classList.remove('answered');
-                        }
-                        form.reset(); // Reset the form to clear selected answers
-                    } else {
-                        console.error('Error removing answer:', data.message);
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Gagal menghapus jawaban dari server. Coba lagi nanti.');
-                }
-            });
+            // removeAnswerButton.addEventListener('click', async (event) => {
+            //     event.preventDefault();
+            //     const url = '{{ route('grammar.quiz.removeAnswer', ['course' => $course->slug, 'questionIndex' => '__questionIndex__']) }}'.replace('__questionIndex__', questionIndex);
+            //     try {
+            //         const response = await fetch(url, {
+            //             method: 'DELETE',
+            //             headers: {
+            //                 'X-CSRF-TOKEN': csrfToken,
+            //                 'Accept': 'application/json',
+            //             },
+            //         });
+            //         const data = await response.json();
+            //         if (data.status === 'success') {
+            //             removeAnswerFromLocal(questionIndex);
+            //             const card = document.querySelector(`.card-container a:nth-child(${questionIndex})`);
+            //             if (card) {
+            //                 card.classList.remove('answered');
+            //             }
+            //             form.reset(); // Reset the form to clear selected answers
+            //         } else {
+            //             console.error('Error removing answer:', data.message);
+            //         }
+            //     } catch (error) {
+            //         console.error('Error:', error);
+            //         alert('Gagal menghapus jawaban dari server. Coba lagi nanti.');
+            //     }
+            // });
 
             // Load answered cards on page load
             loadAnsweredCards();
