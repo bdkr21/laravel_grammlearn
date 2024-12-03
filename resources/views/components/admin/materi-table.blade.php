@@ -34,3 +34,4 @@
 <div class="pagination">
     {{ $materis->links() }}
 </div>
+{{-- as --}}
