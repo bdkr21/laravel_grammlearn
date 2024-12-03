@@ -113,7 +113,8 @@
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Lihat Kuis') }}</h3>
-                        <a href="{{ route('quizzes.index') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded block text-center mb-2">
+                        <a href="" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded block text-center mb-2">
+                        {{-- <a href="{{ route('quizzes.index') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded block text-center mb-2"> --}}
                             {{ __('View Quizzes') }}
                         </a>
                     </div>
@@ -200,11 +201,6 @@
     </div>
     <script src="{{asset('ckeditor/ckeditor.js')}}"></script>
     <script>
-        // var konten = document.getElementById("konten");
-        //     CKEDITOR.replace(konten,{
-        //     language:'en-gb'
-        // });
-        // CKEDITOR.config.allowedContent = true;
         function showAddItemModal() {
             document.getElementById('add-item-modal').classList.remove('hidden');
         }

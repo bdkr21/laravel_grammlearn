@@ -12,17 +12,15 @@
                     </div>
 
                     <div class="mb-6">
-                        <label for="description" class="block text-lg font-medium text-gray-700">{{ __('Description') }}</label>
-                        <textarea name="description" id="description" class="mt-2 p-3 w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>{{ old('description', $materi->description) }}</textarea>
+                        <label for="content" class="block text-lg font-medium text-gray-700">{{ __('Content') }}</label>
+                        <textarea name="content" id="ckeditor" class="ckeditor mt-2 p-3 w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>{{ old('content', $materi->content) }}</textarea>
                     </div>
 
                     <div class="flex justify-end mt-8">
                         <a href="{{ route('dashboard') }}" class="flex items-center bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg mr-4">
-                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11H9v4h2V7zm0 6H9v2h2v-2z" clip-rule="evenodd"></path></svg>
                             {{ __('Cancel') }}
                         </a>
                         <button type="submit" class="flex items-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
-                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11H9v4h2V7zm0 6H9v2h2v-2z" clip-rule="evenodd"></path></svg>
                             {{ __('Save') }}
                         </button>
                     </div>

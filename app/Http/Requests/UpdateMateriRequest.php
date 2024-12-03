@@ -11,15 +11,33 @@ class UpdateMateriRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return true; // Ganti jika perlu otorisasi khusus
     }
 
+    /**
+     * Define validation rules.
+     */
     public function rules(): array
     {
         return [
-            'slug' => 'required|string|unique:courses,slug,' . $this->route('materi')->id,
+
+            // 'slug' => 'required|string|unique:courses,slug,' . $this->route('materi')->id,
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'content' => 'required|string',
+        ];
+    }
+
+    /**
+     * Custom error messages (optional).
+     */
+    public function messages(): array
+    {
+        return [
+            'slug.required' => 'Slug wajib diisi.',
+            'slug.unique' => 'Slug sudah digunakan, silakan gunakan slug lain.',
+            'title.required' => 'Judul wajib diisi.',
+            'title.max' => 'Judul tidak boleh lebih dari 255 karakter.',
+            'content.required' => 'Konten wajib diisi.',
         ];
     }
 }

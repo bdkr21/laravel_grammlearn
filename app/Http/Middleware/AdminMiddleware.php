@@ -16,10 +16,12 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->role === 'user')) {
-            return $next($request);
+        // Periksa apakah user login dan memiliki peran 'admin'
+        if (Auth::check() && Auth::user()->role === 'admin') {
+            return $next($request);  // Lanjutkan jika admin
         }
 
-        return redirect('/'); // Redirect to a different page if not admin
+        // Arahkan ke halaman lain jika bukan admin
+        return redirect('/');  // Anda bisa mengubah ini sesuai kebutuhan (misalnya ke halaman login atau halaman lainnya)
     }
 }

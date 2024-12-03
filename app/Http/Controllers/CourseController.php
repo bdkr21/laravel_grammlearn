@@ -15,12 +15,22 @@ class CourseController extends Controller
     private function generateSlug($string)
     {
         $slug = strtolower($string);
-        $slug = preg_replace('/[^a-z0-9\s-]/', '', $slug); // Remove all non-alphanumeric characters except spaces
-        $slug = trim($slug); // Remove leading/trailing spaces
-        $slug = preg_replace('/\s+/', '-', $slug); // Replace spaces with hyphens
-        $slug = preg_replace('/-+/', '-', $slug); // Replace multiple hyphens with a single hyphen
+        $slug = preg_replace('/[^a-z0-9\s-]/', '', $slug); // Hilangkan karakter non-alfanumerik
+        $slug = trim($slug); // Hilangkan spasi di awal/akhir
+        $slug = preg_replace('/\s+/', '-', $slug); // Ganti spasi dengan tanda hubung
+        $slug = preg_replace('/-+/', '-', $slug); // Hilangkan tanda hubung ganda
         return $slug;
     }
+
+    // private function generateSlug($string)
+    // {
+    //     $slug = strtolower($string);
+    //     $slug = preg_replace('/[^a-z0-9\s-]/', '', $slug); // Remove all non-alphanumeric characters except spaces
+    //     $slug = trim($slug); // Remove leading/trailing spaces
+    //     $slug = preg_replace('/\s+/', '-', $slug); // Replace spaces with hyphens
+    //     $slug = preg_replace('/-+/', '-', $slug); // Replace multiple hyphens with a single hyphen
+    //     return $slug;
+    // }
 
     public function index()
     {
@@ -81,17 +91,24 @@ class CourseController extends Controller
 
     public function update(UpdateMateriRequest $request, Course $materi)
     {
-        // Validasi data yang masuk
+        // Pastikan user memiliki akses untuk mengedit materi
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+
+        // Validasi data yang dikirimkan
         $validated = $request->validated();
 
-        // Update data kursus berdasarkan input yang diterima dari form
+        // Generate slug baru dari judul
+        $slug = $this->generateSlug($validated['title']);
+
+        // Update data di database
         $materi->update([
             'title' => $validated['title'],
-            'description' => $validated['description'],
-            'slug' => $validated['slug'],
+            'content' => $validated['content'],
+            'slug' => $slug, // Perbarui slug sesuai judul baru
         ]);
 
-        // Redirect ke halaman yang diinginkan dengan pesan sukses
         return redirect()->route('dashboard')->with('success', 'Materi berhasil diperbarui.');
     }
     public function destroy($id)

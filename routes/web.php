@@ -90,7 +90,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
 
     Route::resource('items', ItemController::class);
     Route::resource('materi', CourseController::class);
-    Route::resource('quizzes', QuizController::class);
+    // Route::resource('quizzes', QuizController::class);
 });
 
 
