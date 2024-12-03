@@ -31,9 +31,15 @@
                             </div>
                             <div class="flex justify-center mt-4">
                                 @auth
-                                    <button onclick="confirmAccess('{{ route('courses.show', $course->id) }}')" class="bg-blue-500 text-white px-4 py-2 rounded-full shadow hover:bg-blue-600 transition-colors">
-                                        Dapatkan akses
-                                    </button>
+                                    @if(in_array($course->id, $userAccessLogs))
+                                        <button onclick="window.location.href='{{ route('courses.show', $course->id) }}'" class="bg-green-500 text-white px-4 py-2 rounded-full shadow hover:bg-green-600 transition-colors">
+                                            Lihat materi
+                                        </button>
+                                    @else
+                                        <button onclick="confirmAccess('{{ route('courses.show', $course->id) }}')" class="bg-blue-500 text-white px-4 py-2 rounded-full shadow hover:bg-blue-600 transition-colors">
+                                            Dapatkan akses
+                                        </button>
+                                    @endif
                                 @else
                                     <button onclick="promptLoginOrSignUp()" class="bg-blue-500 text-white px-4 py-2 rounded-full shadow hover:bg-blue-600 transition-colors">
                                         Dapatkan akses

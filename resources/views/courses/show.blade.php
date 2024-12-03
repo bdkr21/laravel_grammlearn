@@ -89,17 +89,10 @@
     </div>
 
     <div class="container mx-auto p-5">
-        <div class="card">
-            <div class="card-body">
-                @if($course->title == 'Parts of Speech')
-                    @include('courses.partials.parts_of_speech')
-                @elseif($course->title == 'Simple Present Tense')
-                    @include('courses.partials.simple_present_tense')
-                @elseif($course->title == 'Present Continuous Tense')
-                    @include('courses.partials.present_continuous_tense')
-                @elseif($course->title == 'Simple Past Tense')
-                    @include('courses.partials.simple_past_tense')
-                @endif
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h1 class="text-2xl font-bold mb-4">{{ $course->title }}</h1>
+            <div class="content">
+                {!! $course->content !!} <!-- Render konten langsung -->
             </div>
         </div>
     </div>

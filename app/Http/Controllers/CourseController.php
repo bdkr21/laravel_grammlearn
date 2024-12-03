@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Course;
+use App\Models\CourseAccessLog;
 // use App\Models\UserAnswer;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\UpdateMateriRequest;
+
 
 class CourseController extends Controller
 {
@@ -23,7 +25,16 @@ class CourseController extends Controller
     public function index()
     {
         $grammarTopics = Course::all()->groupBy('category');
-        return view('courses.index', ['grammarTopics' => $grammarTopics]);
+        $userAccessLogs = [];
+
+        if (auth()->check()) {
+            $userAccessLogs = CourseAccessLog::where('user_id', auth()->id())->pluck('course_id')->toArray();
+        }
+
+        return view('courses.index', [
+            'grammarTopics' => $grammarTopics,
+            'userAccessLogs' => $userAccessLogs
+        ]);
     }
     public function create()
     {
@@ -33,24 +44,33 @@ class CourseController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'content' => 'required|string', // CKEditor content
         ]);
 
         // Generate slug from title
         $slug = $this->generateSlug($request->title);
 
-        // Include slug in the request data
-        $data = $request->all();
+        // Include slug in data to save
+        $data = $request->only(['title', 'content']);
         $data['slug'] = $slug;
 
+        // Save to the database
         Course::create($data);
 
         return redirect()->route('dashboard')->with('success', 'Course created successfully.');
     }
 
+
     public function show($id)
     {
         $course = Course::findOrFail($id); // Ambil kursus berdasarkan ID
+        if (auth()->check()) {
+            CourseAccessLog::firstOrCreate([
+                'user_id' => auth()->id(),
+                'course_id' => $course->id,
+            ]);
+        }
+
         return view('courses.show', compact('course')); // Kembalikan tampilan show dengan data kursus
     }
 
