@@ -15,7 +15,7 @@
 
                 <div class="mb-4">
                     <label for="description" class="block text-sm font-medium text-gray-700">{{ __('Description') }}</label>
-                    <textarea name="description" id="description" class="mt-1 p-2 w-full border rounded" required></textarea>
+                    <textarea name="content" id="ckeditor" class="ckeditor mt-1 p-2 w-full border rounded" required></textarea>
                 </div>
 
                 <div class="flex items-center justify-end">

@@ -198,8 +198,13 @@
             </div>
         </div>
     </div>
-
+    <script src="{{asset('ckeditor/ckeditor.js')}}"></script>
     <script>
+        // var konten = document.getElementById("konten");
+        //     CKEDITOR.replace(konten,{
+        //     language:'en-gb'
+        // });
+        // CKEDITOR.config.allowedContent = true;
         function showAddItemModal() {
             document.getElementById('add-item-modal').classList.remove('hidden');
         }
