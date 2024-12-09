@@ -84,12 +84,13 @@ Route::middleware([AdminMiddleware::class])->group(function () {
 
     Route::get('items/get-items', [AdminController::class, 'getItems']);
 
-    Route::get('materi/get-items', [AdminController::class, 'getCourses']);
+    Route::get('materi/get-items', [AdminController::class, 'getCourses'])->name('materi.getCourses');
     Route::get('quizzes/get-items', [AdminController::class, 'getQuizzes']);
 
 
     Route::resource('items', ItemController::class);
     Route::resource('materi', CourseController::class);
+
     // Route::resource('quizzes', QuizController::class);
 });
 

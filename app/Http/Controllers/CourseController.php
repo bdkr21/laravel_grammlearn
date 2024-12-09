@@ -152,4 +152,14 @@ class CourseController extends Controller
     {
         return view('landing');
     }
+
+    public function getMateri(Request $request)
+    {
+        if ($request->ajax()) {
+            $materis = Course::paginate(10); // Ambil data dengan pagination
+            return view('components.admin.materi-table', compact('materis'))->render();
+        }
+        return redirect()->route('dashboard');
+    }
+
 }

@@ -69,8 +69,6 @@
             </div>
         </div>
     </div>
-
-    <script src="{{asset('ckeditor/ckeditor.js')}}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
         const menuItems = document.querySelectorAll('.menu-item');
@@ -101,44 +99,6 @@
             });
         });
     });
-
-
-        function showAddItemModal() {
-            document.getElementById('add-item-modal').classList.remove('hidden');
-        }
-
-        function showAddCourseModal() {
-            document.getElementById('add-materi-modal').classList.remove('hidden');
-        }
-
-        function showAddQuizModal() {
-            document.getElementById('add-quiz-modal').classList.remove('hidden');
-        }
-        function hideAddModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.add('hidden');
-
-                // Cari form di dalam modal dan reset isinya
-                const form = modal.querySelector('form');
-                if (form) {
-                    form.reset();
-                }
-
-                if (modalId === 'items') {
-                    document.getElementById('search').value = '';
-                    const rows = document.querySelectorAll('#items-table table tbody tr');
-                    rows.forEach(row => row.style.display = '');
-                }
-            }
-        }
-        function showModal(type) {
-            document.getElementById(`${type}-modal`).classList.remove('hidden');
-            loadTable(type); // Load table content when the modal is opened
-        }
-        function hideModal(type) {
-            document.getElementById(`${type}-modal`).classList.add('hidden');
-        }
         function filterTable() {
             const input = document.getElementById('search');
             const filter = input.value.toLowerCase();
@@ -160,14 +120,6 @@
                 rows[i].style.display = match ? '' : 'none';
             }
         }
-
-
-        function confirmDelete(event) {
-            if (!confirm('Are you sure you want to delete this item?')) {
-                event.preventDefault();
-            }
-        }
-
         document.addEventListener('click', function (e) {
             if (e.target.matches('.pagination a')) {
                 e.preventDefault();
