@@ -58,7 +58,7 @@ class ProfileController extends Controller
         return Redirect::to('/');
     }
 
-    public function dashboard(Request $request): View
+    public function dashboard()
     {
         $user = Auth::user();
         $points = $user->points;

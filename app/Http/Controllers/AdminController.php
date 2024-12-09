@@ -12,18 +12,17 @@ use Illuminate\View\View;
 
 class AdminController extends Controller
 {
-    public function dashboard(Request $request): View
+    public function dashboard()
     {
         $user = Auth::user();
-        // $points = $user->points;
         $role = $user->role;
         $users = User::all(); // Ambil semua user untuk ditampilkan di dashboard
-
         $points = Auth::user()->points;
         $items = Item::paginate(10);
         $materis = Course::paginate(10);
         $quizzes = Question::all();
-        return view('dashboard', compact('points', 'role', 'users','items','materis','quizzes'));
+
+        return view('dashboard', compact('points', 'role', 'users', 'items', 'materis', 'quizzes'));
     }
 
     public function create(): View

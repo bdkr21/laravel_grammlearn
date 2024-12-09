@@ -62,7 +62,7 @@ Route::get('/quiz/{course}/finish', [GrammarController::class, 'finishQuiz'])->n
 Route::middleware(['auth'])->group(function () {
     Route::get('/grammar/quiz/{categorySlug}/confirm-open', [GrammarController::class, 'confirmOpenQuiz'])->name('grammar.quiz.confirmOpen');
     Route::post('/confirm-open-quiz/{categorySlug}', [GrammarController::class, 'confirmOpenQuiz'])->name('grammar.confirmOpenQuiz');
-    Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('user.dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -73,7 +73,7 @@ Route::get('courses/get-items', [AdminController::class, 'getCourses']);
 
 
 Route::middleware([AdminMiddleware::class])->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/admin/create', [AdminController::class, 'create'])->name('admin.create');
     Route::post('/admin/store', [AdminController::class, 'store'])->name('admin.store');
     Route::get('/admin/edit/{id}', [AdminController::class, 'edit'])->name('admin.edit');

@@ -1,206 +1,108 @@
 <!-- resources/views/dashboard.blade.php -->
 
 <x-app-layout>
-    <x-slot name="header">
+    {{-- <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Dashboard') }}
         </h2>
-    </x-slot>
+    </x-slot> --}}
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <div class="text-lg font-medium text-gray-900">
-                            {{ Auth::user()->name }}
-                        </div>
-                        <div class="text-2xl font-semibold text-gray-700">
-                            {{ __('MY POINTS') }}: <span class="ml-2">{{ $points }}</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <a href="{{ route('profile.edit') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
-                            {{ __('Profile') }}
-                        </a>
-                        <a href="{{ route('history.redeem') }}" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded">
-                            {{ __('History Redeem') }}
-                        </a>
-                        <form method="POST" action="{{ route('logout') }}" class="inline">
-                            @csrf
-                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
-                                {{ __('Log out') }}
-                            </button>
-                        </form>
-                    </div>
-                </div>
+    <div class="flex">
+        <!-- Sidebar -->
+        <x-sidebar />
 
-                <!-- Bagian Inventory di Dashboard -->
-                <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6 mt-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('My Inventory') }}</h3>
+        <!-- Content -->
+        <div id="dynamic-content" class="flex-1 py-12 px-6 bg-gray-100">
+            <div class="flex-1 py-12 px-6 bg-gray-100">
+                <div class="max-w-7xl mx-auto">
+                    <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">
+                        <!-- Content dari Dashboard -->
+                        <div class="py-12">
+                            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                                <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">
+                                    <div class="flex justify-between items-center mb-6">
+                                        <div>
+                                            <div class="text-lg font-medium text-gray-900">
+                                                {{ Auth::user()->name }}
+                                            </div>
+                                            <div class="text-2xl font-semibold text-gray-700">
+                                                {{ __('MY POINTS') }}: <span class="ml-2">{{ $points }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                    <!-- Toaster Notification -->
-                    @if(session('success'))
-                        <div id="toast-success" class="fixed top-0 right-0 mt-4 mr-4 bg-green-500 text-white p-4 rounded shadow-lg">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+                                    <!-- Bagian Inventory di Dashboard -->
+                                    <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6 mt-6">
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('My Inventory') }}</h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        @foreach(Auth::user()->inventories as $inventory)
-                            <div class="bg-gray-100 p-4 rounded-lg shadow-md">
-                                <h4 class="text-xl font-semibold">{{ $inventory->item->name }}</h4>
-                                <p class="text-gray-700 mb-4">{{ $inventory->item->description }}</p>
-                                <p class="text-gray-500">{{ __('Purchased on: ') . $inventory->created_at->format('d M Y') }}</p>
-                                @if (!$inventory->redeemed)
-                                    <form action="{{ route('inventory.redeemItem', $inventory->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded mt-4">
-                                            {{ __('Redeem') }}
-                                        </button>
-                                    </form>
-                                @endif
+                                        <!-- Toaster Notification -->
+                                        @if(session('success'))
+                                            <div id="toast-success" class="fixed top-0 right-0 mt-4 mr-4 bg-green-500 text-white p-4 rounded shadow-lg">
+                                                {{ session('success') }}
+                                            </div>
+                                        @endif
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            @foreach(Auth::user()->inventories as $inventory)
+                                                <div class="bg-gray-100 p-4 rounded-lg shadow-md">
+                                                    <h4 class="text-xl font-semibold">{{ $inventory->item->name }}</h4>
+                                                    <p class="text-gray-700 mb-4">{{ $inventory->item->description }}</p>
+                                                    <p class="text-gray-500">{{ __('Purchased on: ') . $inventory->created_at->format('d M Y') }}</p>
+                                                    @if (!$inventory->redeemed)
+                                                        <form action="{{ route('inventory.redeemItem', $inventory->id) }}" method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded mt-4">
+                                                                {{ __('Redeem') }}
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        @if(Auth::user()->inventories->isEmpty())
+                                            <p class="text-gray-500 mt-4">{{ __('You do not have any items in your inventory.') }}</p>
+                                        @endif
+                                </div>
                             </div>
-                        @endforeach
-                    </div>
-                    @if(Auth::user()->inventories->isEmpty())
-                        <p class="text-gray-500 mt-4">{{ __('You do not have any items in your inventory.') }}</p>
-                    @endif
-
-                @if(Auth::user()->role === 'admin')
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('CRUD Items') }}</h3>
-                        <a href="#" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded block text-center mb-2" onclick="showModal('items')">
-                            {{ __('Manage Items') }}
-                        </a>
-                        <a href="#" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded block text-center" onclick="showAddItemModal()">
-                            {{ __('Add New Item') }}
-                        </a>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('CRUD Materi') }}</h3>
-                        <a href="#" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded block text-center mb-2" onclick="showModal('materi')">
-                            {{ __('Manage Materi') }}
-                        </a>
-                        <a href="#" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded block text-center" onclick="showAddCourseModal()">
-                            {{ __('Add New Materi') }}
-                        </a>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('CRUD Quizzes') }}</h3>
-                        <a href="#" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded block text-center mb-2" onclick="showModal('quizzes')">
-                            {{ __('Manage Quizzes') }}
-                        </a>
-                        <a href="" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded block text-center" onclick="showAddQuizModal()">
-                            {{ __('Add New Quiz') }}
-                        </a>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Lihat Items') }}</h3>
-                        <a href="{{ route('items.index') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded block text-center mb-2">
-                            {{ __('View Items') }}
-                        </a>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Lihat Materi') }}</h3>
-                        <a href="{{ route('materi.index') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded block text-center mb-2">
-                            {{ __('View Materi') }}
-                        </a>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Lihat Kuis') }}</h3>
-                        <a href="" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded block text-center mb-2">
-                        {{-- <a href="{{ route('quizzes.index') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded block text-center mb-2"> --}}
-                            {{ __('View Quizzes') }}
-                        </a>
-                    </div>
-                </div>
-
-
-
-                <div id="items-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden modal">
-                    <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white modal-content">
-                        <div class="mt-3 text-center">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Manage Items') }}</h3>
-
-                            <!-- Input search -->
-                            <div class="mb-4">
-                                <input
-                                    type="text"
-                                    id="search"
-                                    placeholder="Search items..."
-                                    class="mt-1 p-2 w-full border rounded"
-                                    oninput="filterTable()"
-                                />
-                            </div>
-                            <div id="items-content">
-
-                                <!-- The content for managing items will be loaded here -->
-                            </div>
-                            <button type="button" class="mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded w-full" onclick="hideModal('items')">
-                                {{ __('Close') }}
-                            </button>
                         </div>
                     </div>
                 </div>
-
-                <div id="materi-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden modal">
-                    <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white modal-content">
-                        <div class="mt-3 text-center">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Manage Materi') }}</h3>
-                            <div id="materi-content">
-                                <!-- The content for managing materi will be loaded here -->
-                            </div>
-                            <button type="button" class="mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded w-full" onclick="hideModal('materi')">
-                                {{ __('Close') }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="quizzes-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden modal">
-                    <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white modal-content">
-                        <div class="mt-3 text-center">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Manage Quizzes') }}</h3>
-                            <div id="quizzes-content">
-                                <!-- The content for managing quizzes will be loaded here -->
-                            </div>
-                            <button type="button" class="mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded w-full" onclick="hideModal('quizzes')">
-                                {{ __('Close') }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="add-item-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden modal">
-                    <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white modal-content">
-
-                        @include('admin.items.create')
-                        <button type="button" class="mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded" onclick="hideAddModal('add-item-modal')">
-                            {{ __('Close') }}
-                        </button>
-                    </div>
-                </div>
-
-                <div id="add-materi-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden modal">
-                    <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white modal-content">
-
-                        @include('admin.materi.create')
-                        <button type="button" class="mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded" onclick="hideAddModal('add-materi-modal')">
-                            {{ __('Close') }}
-                        </button>
-                    </div>
-                </div>
-                @endif
             </div>
         </div>
     </div>
+
     <script src="{{asset('ckeditor/ckeditor.js')}}"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const menuItems = document.querySelectorAll('.menu-item');
+        const contentArea = document.getElementById('dynamic-content');
+
+        menuItems.forEach(item => {
+            item.addEventListener('click', function (event) {
+                event.preventDefault(); // Mencegah reload halaman
+                const url = this.getAttribute('data-url'); // Ambil URL dari data attribute
+
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'text/html', // Pastikan menerima HTML
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+                    return response.text();
+                })
+                .then(html => {
+                    contentArea.innerHTML = html; // Perbarui konten dengan HTML
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    contentArea.innerHTML = '<p class="text-red-500">Failed to load content. Please try again later.</p>';
+                });
+            });
+        });
+    });
+
+
         function showAddItemModal() {
             document.getElementById('add-item-modal').classList.remove('hidden');
         }

@@ -31,21 +31,29 @@
         <div class="hidden md:flex md:items-center">
             @if (Route::has('login'))
                 @auth
-                <li class="relative" @click.away="open = false" @close.stop="open = false" x-data="{ open: false }">
-                    <button @click="open = !open" class="text-white hover:bg-gray-700 hover:rounded-lg transition duration-300 px-3 py-2 focus:outline-none" id="navbarDropdown" aria-haspopup="true" aria-expanded="false">
-                        {{ Auth::user()->name }}
-                    </button>
-                    <div x-show="open" @click="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-20" aria-labelledby="navbarDropdown">
-                        <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:rounded-lg transition duration-300" href="{{ route('dashboard') }}">Dashboard</a>
-                        <div class="border-t border-gray-200"></div>
-                        <button class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:rounded-lg transition duration-300" onclick="logoutAndClearStorage()">
-                            Log Out
+                    <li class="relative" @click.away="open = false" @close.stop="open = false" x-data="{ open: false }">
+                        <button @click="open = !open" class="text-white hover:bg-gray-700 hover:rounded-lg transition duration-300 px-3 py-2 focus:outline-none" id="navbarDropdown" aria-haspopup="true" aria-expanded="false">
+                            {{ Auth::user()->name }}
                         </button>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
-                            @csrf
-                        </form>
-                    </div>
-                </li>
+                        <div x-show="open" @click="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-20" aria-labelledby="navbarDropdown">
+                            @if (Auth::user()->role === 'admin')
+                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:rounded-lg transition duration-300" href="{{ route('dashboard') }}">
+                                    Admin Dashboard
+                                </a>
+                            @else
+                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:rounded-lg transition duration-300" href="{{ route('user.dashboard') }}">
+                                    Dashboard
+                                </a>
+                            @endif
+                            <div class="border-t border-gray-200"></div>
+                            <button class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:rounded-lg transition duration-300" onclick="logoutAndClearStorage()">
+                                Log Out
+                            </button>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                                @csrf
+                            </form>
+                        </div>
+                    </li>
                 @else
                     <a class="text-white hover:bg-gray-700 hover:rounded-lg transition duration-300 px-3 py-2" href="{{ url('/login') }}">Log in</a>
                     @if (Route::has('register'))
