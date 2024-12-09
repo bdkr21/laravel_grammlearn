@@ -23,12 +23,24 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
+        // $request->authenticate();
+
+        // $request->session()->regenerate();
+
+        // return redirect()->intended(route('home', absolute: false));
     {
-        $request->authenticate();
+        $credentials = $request->only('email', 'password');
 
-        $request->session()->regenerate();
+        // Tambahkan boolean('remember') untuk mengubah "on" menjadi true
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $request->session()->regenerate();
 
-        return redirect()->intended(route('home', absolute: false));
+            return redirect()->intended(route('home', absolute: false));
+        }
+
+        return back()->withErrors([
+            'email' => __('These credentials do not match our records.'),
+        ]);
     }
 
     /**
@@ -36,11 +48,23 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Auth::guard('web')->logout();
+
+        // $request->session()->invalidate();
+
+        // $request->session()->regenerateToken();
+
+        // return redirect('/');
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
+
+        // Hapus cookie "remember me"
+        if (isset($_COOKIE['remember_web_' . sha1(config('app.key'))])) {
+            unset($_COOKIE['remember_web_' . sha1(config('app.key'))]);
+            setcookie('remember_web_' . sha1(config('app.key')), null, -1, '/');
+        }
 
         return redirect('/');
     }
