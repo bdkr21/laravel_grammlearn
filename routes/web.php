@@ -82,7 +82,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
 
     // Route::get('/items/create-form', [ItemController::class, 'createForm'])->name('items.create-form');
 
-    Route::get('items/get-items', [AdminController::class, 'getItems']);
+    Route::get('items/get-items', [AdminController::class, 'getItems'])->name('items.getItems');
 
     Route::get('materi/get-items', [AdminController::class, 'getCourses'])->name('materi.getCourses');
     Route::get('quizzes/get-items', [AdminController::class, 'getQuizzes']);

@@ -13,6 +13,15 @@
 
         <!-- Content -->
         <div id="dynamic-content" class="flex-1 py-12 px-6 bg-gray-100">
+
+            <div id="createModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full">
+                <div class="relative w-full h-full max-w-2xl md:h-auto">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                        <div id="modalContent"></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex-1 py-12 px-6 bg-gray-100">
                 <div class="max-w-7xl mx-auto">
                     <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">

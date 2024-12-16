@@ -34,7 +34,7 @@
                 </button>
                 <ul x-show="open" x-cloak class="mt-2 space-y-2 pl-6">
                     <li>
-                        <a href="#" data-url="{{ route('items.index') }}" class="menu-item flex items-center px-4 py-2 hover:bg-gray-700">
+                        <a href="#" data-url="{{ route('items.getItems') }}" class="menu-item flex items-center px-4 py-2 hover:bg-gray-700">
                             {{ __('Managemen Barang') }}
                         </a>
                     </li>

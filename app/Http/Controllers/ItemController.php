@@ -13,8 +13,7 @@ class ItemController extends Controller
      */
     public function index()
     {
-        $items = Item::paginate(10); // Ambil data dengan pagination
-        return view('components.admin.items-table', compact('items'));
+
     }
 
     /**

@@ -82,11 +82,14 @@ class AdminController extends Controller
 
     public function getItems(Request $request)
     {
-        if ($request->ajax()) {
-            $items = Item::paginate(10); // Assuming you use pagination
-            return view('components.admin.items-table', compact('items'))->render();
-        }
-        return redirect()->route('dashboard');
+        $items = Item::paginate(10); // Ambil data dengan pagination
+        return view('components.admin.items-table', compact('items'));
+
+        // if ($request->ajax()) {
+        //     $items = Item::paginate(10); // Assuming you use pagination
+        //     return view('components.admin.items-table', compact('items'))->render();
+        // }
+        // return redirect()->route('dashboard');
     }
 
     public function getCourses(Request $request)
