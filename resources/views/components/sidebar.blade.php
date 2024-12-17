@@ -44,8 +44,8 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" onclick="showModal('quizzes')" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
-                            <span class="text-sm font-medium">{{ __('Manage Quizzes') }}</span>
+                        <a href="#" data-url="{{ route('akuganteng') }}" class="menu-item flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                            {{ __('Managemen Kuis') }}
                         </a>
                     </li>
                 </ul>

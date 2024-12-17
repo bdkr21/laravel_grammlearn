@@ -85,13 +85,13 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('items/get-items', [AdminController::class, 'getItems'])->name('items.getItems');
 
     Route::get('materi/get-items', [AdminController::class, 'getCourses'])->name('materi.getCourses');
-    Route::get('quizzes/get-items', [AdminController::class, 'getQuizzes']);
+    Route::get('quizzes/get-items', [AdminController::class, 'getQuiz'])->name('akuganteng');
 
 
     Route::resource('items', ItemController::class);
     Route::resource('materi', CourseController::class);
 
-    // Route::resource('quizzes', QuizController::class);
+    Route::resource('kuiss', QuizController::class);
 });
 
 

@@ -24,9 +24,14 @@ class Question extends Model
      * Mendefinisikan relasi dengan model `Course`
      * Satu pertanyaan hanya dimiliki oleh satu kursus
      */
+    // public function course()
+    // {
+    //     return $this->belongsTo(Course::class);
+    // }
+
     public function course()
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(Course::class, 'course_id');
     }
 
     /**

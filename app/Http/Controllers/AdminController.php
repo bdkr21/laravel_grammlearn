@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Item;
+use App\Models\Quiz;
 use App\Models\Course;
 use App\Models\Question;
 use Illuminate\View\View;
@@ -101,12 +102,9 @@ class AdminController extends Controller
         return redirect()->route('dashboard');
     }
 
-    public function getQuizzes(Request $request)
+    public function getQuiz(Request $request)
     {
-        if ($request->ajax()) {
-            $quizzes = Quiz::paginate(10); // Assuming you use pagination
-            return view('components.admin.quizzes-table', compact('quizzes'))->render();
-        }
-        return redirect()->route('dashboard');
+        $quizs = Quiz::paginate(10); // Ambil data dengan pagination
+        return view('components.admin.quizzes-table', compact('quizs'));
     }
 }
