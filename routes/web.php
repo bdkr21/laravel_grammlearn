@@ -33,6 +33,7 @@ Route::post('/api/give-points', [CourseController::class, 'givePoints'])->name('
 
 
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
+Route::get('/about', [LandingPageController::class, 'index2'])->name('about');
 
 
 Route::get('/daily-mission', [DailyMissionController::class, 'index'])->name('daily');

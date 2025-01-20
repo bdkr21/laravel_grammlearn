@@ -24,7 +24,7 @@ class DailyMissionController extends Controller
     public function startQuiz()
     {
         // Get a random set of questions
-        $questions = Question::inRandomOrder()->take(2)->get();
+        $questions = Question::inRandomOrder()->take(1)->get();
         session()->put('daily_questions', $questions);
 
         return redirect()->route('daily.quiz.showQuestion', ['questionIndex' => 1]);
@@ -32,13 +32,23 @@ class DailyMissionController extends Controller
 
     public function showQuestion($questionIndex)
     {
-        $questions = session()->get('daily_questions');
-        $question = $questions[$questionIndex - 1];
+        // Ambil semua soal dari database
+        $allQuestions = Question::all(); // Ambil semua soal dari model `Question`
+
+        // Acak soal setiap kali halaman dimuat
+        $shuffledQuestions = $allQuestions->shuffle();
+
+        // Validasi indeks pertanyaan
+        if ($questionIndex < 1 || $questionIndex > count($shuffledQuestions)) {
+            abort(404, 'Question not found');
+        }
+
+        $question = $shuffledQuestions[$questionIndex - 1];
         $answers = session()->get('daily_answers', []);
 
         return view('daily.quiz', [
             'currentQuestionIndex' => $questionIndex,
-            'totalQuestions' => count($questions),
+            'totalQuestions' => count($shuffledQuestions),
             'question' => $question,
             'answers' => $answers,
         ]);

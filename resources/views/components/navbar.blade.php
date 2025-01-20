@@ -19,6 +19,9 @@
                         <li class="nav-item">
                             <a class="text-white hover:bg-gray-700 hover:rounded-lg transition duration-300 px-3 py-2" href="{{ url('/courses') }}">Materi</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="text-white hover:bg-gray-700 hover:rounded-lg transition duration-300 px-3 py-2" href="{{ url('/about') }}">Tentang Kami</a>
+                        </li>
                         @auth
                             <li class="nav-item">
                                 <a class="text-white hover:bg-gray-700 hover:rounded-lg transition duration-300 px-3 py-2" href="{{ url('/daily-mission/quiz') }}">Daily Mission</a>

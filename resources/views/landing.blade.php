@@ -161,7 +161,8 @@
     <!-- Footer -->
     <footer>
         <div class="container mx-auto">
-            <p>&copy; 2024 Grammlearn. All rights reserved.</p>
+            <p>&copy; 2024 Grammlearn. All rights reserved. <a href="{{ route('about') }}" class="cta-btn">Tentang Kami</a>
+            </p>
         </div>
     </footer>
 

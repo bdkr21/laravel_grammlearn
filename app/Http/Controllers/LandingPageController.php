@@ -11,4 +11,9 @@ class LandingPageController extends Controller
     {
         return view('landing');
     }
+
+    public function index2()
+    {
+        return view('about');
+    }
 }
