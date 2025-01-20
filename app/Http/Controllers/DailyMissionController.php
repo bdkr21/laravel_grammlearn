@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class DailyMissionController extends Controller
 {
-    // protected $grammarService;
+    protected $grammarService;
 
     // public function __construct(GrammarService $grammarService)
     // {
@@ -33,10 +33,15 @@ class DailyMissionController extends Controller
     public function showQuestion($questionIndex)
     {
         // Ambil semua soal dari database
-        $allQuestions = Question::all(); // Ambil semua soal dari model `Question`
+        $allQuestions = Question::all();
 
-        // Acak soal setiap kali halaman dimuat
-        $shuffledQuestions = $allQuestions->shuffle();
+        // Acak soal hanya sekali dan simpan di sesi
+        if (!session()->has('daily_questions')) {
+            $shuffledQuestions = $allQuestions->shuffle();
+            session()->put('daily_questions', $shuffledQuestions);
+        } else {
+            $shuffledQuestions = session()->get('daily_questions');
+        }
 
         // Validasi indeks pertanyaan
         if ($questionIndex < 1 || $questionIndex > count($shuffledQuestions)) {
@@ -44,6 +49,22 @@ class DailyMissionController extends Controller
         }
 
         $question = $shuffledQuestions[$questionIndex - 1];
+
+        // Kirim soal ke GrammarBot API
+        try {
+            $grammarCheck = $this->grammarService->checkGrammar($question->question);
+
+            // Simpan hasil koreksi di sesi
+            $correctedQuestions = session()->get('daily_corrected_questions', []);
+            $correctedQuestions[$questionIndex - 1] = $grammarCheck['correction'] ?? $question->question;
+            session()->put('daily_corrected_questions', $correctedQuestions);
+        } catch (\Exception $e) {
+            // Tangani error jika API gagal
+            $correctedQuestions = session()->get('daily_corrected_questions', []);
+            $correctedQuestions[$questionIndex - 1] = $question->question;
+            session()->put('daily_corrected_questions', $correctedQuestions);
+        }
+
         $answers = session()->get('daily_answers', []);
 
         return view('daily.quiz', [
@@ -53,6 +74,8 @@ class DailyMissionController extends Controller
             'answers' => $answers,
         ]);
     }
+
+
 
     public function submitAnswer(Request $request, $questionIndex)
     {
@@ -65,33 +88,48 @@ class DailyMissionController extends Controller
         $answers[$questionIndex - 1] = $userAnswer;
         session()->put('daily_answers', $answers);
 
-        // Check the answer with the grammar service
+        // Fetch the current question
         $question = $questions[$questionIndex - 1];
-        $grammarCheck = $this->grammarService->checkGrammar($question->question);
-        $correctedAnswer = $grammarCheck['correction'] ?? $question->question;
 
-        // Save the corrected answer
-        $correctedAnswers = session()->get('daily_corrected_answers', []);
-        $correctedAnswers[$questionIndex - 1] = $correctedAnswer;
-        session()->put('daily_corrected_answers', $correctedAnswers);
+        // Call GrammarBot API
+        try {
+            // Memeriksa jawaban dengan GrammarBot API
+            $grammarCheck = $this->grammarService->checkGrammar($userAnswer);
 
-        // Determine the message
-        $message = $userAnswer === $correctedAnswer ? 'OK' : 'Salah';
+            // Ambil koreksi dari respon GrammarBot
+            $correctedAnswer = $grammarCheck['correction'] ?? $userAnswer;
 
+            // Simpan jawaban yang sudah dikoreksi untuk evaluasi nanti
+            $correctedAnswers = session()->get('daily_corrected_answers', []);
+            $correctedAnswers[$questionIndex - 1] = $correctedAnswer;
+            session()->put('daily_corrected_answers', $correctedAnswers);
+
+            // Bandingkan jawaban pengguna dan koreksi
+            $message = $userAnswer === $correctedAnswer ? 'OK' : 'Salah';
+        } catch (\Exception $e) {
+            // Tangani kegagalan API
+            $message = 'Error in grammar checking service';
+        }
+
+        // Redirect to the next question or finish
         if ($questionIndex < $totalQuestions) {
             return redirect()->route('daily.quiz.showQuestion', ['questionIndex' => $questionIndex + 1])
-                             ->with('message', $message);
+                            ->with('message', $message);
         } else {
             return redirect()->route('daily.quiz.completeQuiz')
-                             ->with('message', $message);
+                            ->with('message', $message);
         }
     }
 
+
+
     public function completeQuiz()
     {
-        $questions = session()->get('daily_questions');
+        // Ambil soal dari sesi
+        $questions = session()->get('daily_questions', []);
         $answers = session()->get('daily_answers', []);
-        $correctedAnswers = session()->get('daily_corrected_answers', []);
+        $correctedQuestions = session()->get('daily_corrected_questions', []); // Soal yang sudah dikoreksi GrammarBot
+        $correctedAnswers = session()->get('daily_corrected_answers', []); // Jawaban yang sudah dikoreksi GrammarBot
 
         $score = 0;
         $messages = [];
@@ -114,6 +152,7 @@ class DailyMissionController extends Controller
 
         return view('daily.quiz_result', [
             'questions' => $questions,
+            'correctedQuestions' => $correctedQuestions, // Tambahkan soal yang dikoreksi
             'totalQuestions' => count($questions),
             'score' => $score,
             'points' => $user->points,

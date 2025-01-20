@@ -14,16 +14,15 @@
             <p>Your Score: {{ $score }} / {{ $totalQuestions }}</p>
         </div>
         <div>
-            <h3>Questions You Got Wrong:</h3>
+            <h3>Questions and Corrections:</h3>
             <ul>
                 @foreach ($questions as $index => $question)
-                    @if (isset($answers[$index]) && $answers[$index] != $question->answer)
-                        <li>
-                            <p>{{ $question->question }}</p>
-                            <p><strong>Correct Answer:</strong> {{ $question->answer }}</p>
-                            <p><strong>Your Answer:</strong> {{ $answers[$index] ?? 'Not answered' }}</p>
-                        </li>
-                    @endif
+                    <li>
+                        <p><strong>Original Question:</strong> {{ $question->question }}</p>
+                        <p><strong>Corrected Question:</strong> {{ $correctedQuestions[$index] }}</p>
+                        <p><strong>Your Answer:</strong> {{ $answers[$index] ?? 'Not answered' }}</p>
+                        <p><strong>Correct Answer:</strong> {{ $grammarResults[$index] ?? 'Not available' }}</p>
+                    </li>
                 @endforeach
             </ul>
         </div>

@@ -13,8 +13,10 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\HistoryRedeemController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\TestController;
 // use App\Http\Controllers\PointController;
 
+Route::get('/test-grammarbot', [TestController::class, 'testGrammarBot']);
 
 Route::get('/courses', [CourseController::class, 'index'])->name('index.courses');
 Route::get('/courses/{id}', [CourseController::class, 'show'])->name('courses.show');
