@@ -14,7 +14,7 @@ class GrammarService
     {
         $this->client = new Client();
         $this->apiUrl = 'https://neural.grammarbot.io/v1/check';
-        $this->apiKey = 'gb-3KJ-FrpBqdb5Ety7zcGvpYbVi0fU5sKew2aqVfH01yNcnxw';// Pastikan API Key ada di .env
+        // $this->apiKey = 'gb-3KJ-FrpBqdb5Ety7zcGvpYbVi0fU5sKew2aqVfH01yNcnxw';
     }
 
     public function checkGrammar($text)

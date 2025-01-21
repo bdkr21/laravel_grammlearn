@@ -7,17 +7,10 @@ use App\Models\Course;
 use App\Models\Question;
 use App\Models\Answer;
 use Illuminate\Support\Facades\Auth;
-use App\Services\GrammarService;
 use App\Models\UserAnswer;
 
 class GrammarController extends Controller
 {
-    protected $grammarService;
-
-    public function __construct(GrammarService $grammarService)
-    {
-        $this->grammarService = $grammarService;
-    }
 
     public function index()
     {

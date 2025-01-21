@@ -11,24 +11,39 @@ class DailyMissionController extends Controller
 {
     protected $grammarService;
 
-    // public function __construct(GrammarService $grammarService)
-    // {
-    //     $this->grammarService = $grammarService;
-    // }
+    public function __construct(GrammarService $grammarService)
+    {
+        $this->grammarService = $grammarService;
+    }
 
     public function index()
     {
-        return view('daily.index');
-    }
+        $user = Auth::user();
 
-    public function startQuiz()
-    {
+        // Pastikan kolom last_attempted_at ada, jika null, anggap belum melakukan misi harian
+        $lastAttemptedAt = \Carbon\Carbon::parse($user->last_attempted_at ?? '1900-01-01'); // Menggunakan tanggal default jika null
+
+        // Cek apakah misi harian sudah dilakukan hari ini
+        if ($lastAttemptedAt->isToday()) {
+            // Kirim pesan alert ke session dan tetap di halaman yang sama
+            return back()->with('alertMessage', 'Anda sudah melakukan misi harian hari ini.');
+        }
+
+        // Tandai waktu saat ini sebagai waktu terakhir mencoba misi harian
+        $user->last_attempted_at = now();
+        $user->save();
+
         // Get a random set of questions
         $questions = Question::inRandomOrder()->take(1)->get();
         session()->put('daily_questions', $questions);
 
         return redirect()->route('daily.quiz.showQuestion', ['questionIndex' => 1]);
     }
+
+    public function startQuiz()
+    {
+    }
+
 
     public function showQuestion($questionIndex)
     {
@@ -125,20 +140,18 @@ class DailyMissionController extends Controller
 
     public function completeQuiz()
     {
-        // Ambil soal dari sesi
         $questions = session()->get('daily_questions', []);
         $answers = session()->get('daily_answers', []);
-        $correctedQuestions = session()->get('daily_corrected_questions', []); // Soal yang sudah dikoreksi GrammarBot
-        $correctedAnswers = session()->get('daily_corrected_answers', []); // Jawaban yang sudah dikoreksi GrammarBot
+        $correctedQuestions = session()->get('daily_corrected_questions', []);
 
         $score = 0;
         $messages = [];
 
         foreach ($questions as $index => $question) {
-            $userAnswer = $answers[$index] ?? null;
-            $correctedAnswer = $correctedAnswers[$index] ?? null;
+            $userAnswer = trim(strtolower($answers[$index] ?? ''));
+            $correctAnswer = trim(strtolower($correctedQuestions[$index] ?? ''));
 
-            if ($userAnswer && $userAnswer === $correctedAnswer) {
+            if ($userAnswer === $correctAnswer) {
                 $score++;
                 $messages[$index] = 'OK';
             } else {
@@ -146,19 +159,22 @@ class DailyMissionController extends Controller
             }
         }
 
+        // Update user points and last attempted timestamp
         $user = Auth::user();
         $user->points += $score;
+        $user->last_attempted_at = now();  // Set the last attempted time to now
         $user->save();
 
         return view('daily.quiz_result', [
             'questions' => $questions,
-            'correctedQuestions' => $correctedQuestions, // Tambahkan soal yang dikoreksi
+            'correctedQuestions' => $correctedQuestions,
             'totalQuestions' => count($questions),
             'score' => $score,
             'points' => $user->points,
             'answers' => $answers,
-            'grammarResults' => $correctedAnswers,
             'messages' => $messages,
         ])->with('pointsEarned', $score);
     }
+
+
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -85,6 +85,13 @@
 </head>
 <body>
     <div class="container">
+        <!-- Tampilkan pesan jika ada session('message') -->
+        @if (session('message'))
+            <div class="alert alert-warning">
+                {{ session('message') }}
+            </div>
+        @endif
+
         <div class="card">
             <div class="question-text">
                 <p>Perbaiki soal Grammar di bawah ini:</p>

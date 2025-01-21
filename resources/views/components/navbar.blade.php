@@ -24,7 +24,7 @@
                         </li>
                         @auth
                             <li class="nav-item">
-                                <a class="text-white hover:bg-gray-700 hover:rounded-lg transition duration-300 px-3 py-2" href="{{ url('/daily-mission/quiz') }}">Daily Mission</a>
+                                <a class="text-white hover:bg-gray-700 hover:rounded-lg transition duration-300 px-3 py-2" href="{{ url('/daily-mission') }}">Daily Mission</a>
                             </li>
                         @endauth
                     </ul>
@@ -69,7 +69,7 @@
 </nav>
 
 <script src="//unpkg.com/alpinejs" defer></script>
-
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Fungsi logout dan hapus localStorage
     function logoutAndClearStorage() {
@@ -89,4 +89,21 @@
             },
         }))
     })
+
+    // Menampilkan alert jika ada session alertMessage
+    @if (session('alertMessage'))
+        Swal.fire({
+            position: 'top-end',
+            icon: 'info',
+            title: '{{ session('alertMessage') }}',
+            showConfirmButton: false,
+            timer: 2500,
+            width: '300px',   // Ukuran lebar alert
+            padding: '10px',  // Jarak di dalam alert
+            fontSize: '14px', // Ukuran font
+            customClass: {
+                popup: 'small-alert' // Kelas kustom untuk styling
+            }
+        });
+    @endif
 </script>
