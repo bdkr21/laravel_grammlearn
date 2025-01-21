@@ -8,4 +8,3 @@ use App\Http\Controllers\PointController;
 
 
 Route::post('/check-grammar', [GrammarApiController::class, 'checkGrammar']);
-Route::post('/api/give-points', [PointController::class, 'givePoints']);
