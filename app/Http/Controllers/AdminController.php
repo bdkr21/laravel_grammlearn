@@ -92,6 +92,11 @@ class AdminController extends Controller
         // }
         // return redirect()->route('dashboard');
     }
+    public function getUsers(Request $request)
+    {
+        $user_all = User::paginate(10); // Ambil data dengan pagination
+        return view('components.admin.users-table', compact('user_all'));
+    }
 
     public function getCourses(Request $request)
     {

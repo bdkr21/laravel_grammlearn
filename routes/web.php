@@ -13,6 +13,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\HistoryRedeemController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\UserController;
 // use App\Http\Controllers\PointController;
 
 
@@ -87,11 +88,12 @@ Route::middleware([AdminMiddleware::class])->group(function () {
 
     Route::get('materi/get-items', [AdminController::class, 'getCourses'])->name('materi.getCourses');
     Route::get('quizzes/get-items', [AdminController::class, 'getQuiz'])->name('akuganteng');
+    Route::get('users/get-items', [AdminController::class, 'getUsers'])->name('users.getUsers');
 
 
     Route::resource('items', ItemController::class);
     Route::resource('materi', CourseController::class);
-
+    Route::resource('users', UserController::class);
     Route::resource('kuiss', QuizController::class);
 });
 

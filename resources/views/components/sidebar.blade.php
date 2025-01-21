@@ -57,6 +57,12 @@
                                 <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Managemen Kuis') }}</span>
                             </a>
                         </li>
+                        <li>
+                            <a href="#" data-url="{{ route('users.getUsers') }}" class="menu-item flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                                <i class="fas fa-user text-gray-300 mr-3 pl-2"></i>
+                                <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Managemen User') }}</span>
+                            </a>
+                        </li>
                     </ul>
                 </li>
             @endif
