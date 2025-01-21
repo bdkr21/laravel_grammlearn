@@ -29,7 +29,7 @@ class AuthenticatedSessionController extends Controller
 
         // return redirect()->intended(route('home', absolute: false));
     {
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->only('username', 'password');
 
         // Tambahkan boolean('remember') untuk mengubah "on" menjadi true
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
@@ -39,7 +39,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         return back()->withErrors([
-            'email' => __('These credentials do not match our records.'),
+            'username' => __('These credentials do not match our records.'),
         ]);
     }
 
