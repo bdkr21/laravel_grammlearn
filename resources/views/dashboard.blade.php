@@ -88,6 +88,12 @@
                 event.preventDefault(); // Mencegah reload halaman
                 const url = this.getAttribute('data-url'); // Ambil URL dari data attribute
 
+                // Hapus kelas 'active' dari semua menu item
+                menuItems.forEach(el => el.classList.remove('active'));
+
+                // Tambahkan kelas 'active' pada item yang diklik
+                this.classList.add('active');
+
                 fetch(url, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',

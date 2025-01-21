@@ -40,7 +40,7 @@
                     </button>
                     <ul x-show="adminOpen" x-cloak class="mt-2 space-y-2 pl-6">
                         <li>
-                            <a href="#" data-url="{{ route('items.getItems') }}" class="menu-item flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                            <a href="#" data-url="{{ route('items.getItems') }}" class="menu-item flex items-center px-4 py-2 hover:bg-gray-700 rounded transition {{ Request::is('dashboard') ? 'bg-gray-700' : '' }}">
                                 <i class="fas fa-box text-gray-300 mr-3 pl-2"></i>
                                 <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Managemen Barang') }}</span>
                             </a>

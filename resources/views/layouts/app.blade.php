@@ -16,6 +16,12 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+        <style>
+            .menu-item.active {
+                background-color: #4B5563; /* Warna aktif */
+                color: #FFFFFF; /* Warna teks aktif */
+            }
+        </style>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
