@@ -42,7 +42,7 @@
 
                                     <!-- Bagian Inventory di Dashboard -->
                                     <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6 mt-6">
-                                        <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('My Inventory') }}</h3>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Daftar Item Pengguna') }}</h3>
 
                                         <!-- Toaster Notification -->
                                         @if(session('success'))
@@ -50,27 +50,39 @@
                                                 {{ session('success') }}
                                             </div>
                                         @endif
-                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            @foreach(Auth::user()->inventories as $inventory)
-                                                <div class="bg-gray-100 p-4 rounded-lg shadow-md">
-                                                    <h4 class="text-xl font-semibold">{{ $inventory->item->name }}</h4>
-                                                    <p class="text-gray-700 mb-4">{{ $inventory->item->description }}</p>
-                                                    <p class="text-gray-500">{{ __('Purchased on: ') . $inventory->created_at->format('d M Y') }}</p>
-                                                    @if (!$inventory->redeemed)
-                                                        <form action="{{ route('inventory.redeemItem', $inventory->id) }}" method="POST">
-                                                            @csrf
-                                                            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded mt-4">
-                                                                {{ __('Redeem') }}
-                                                            </button>
-                                                        </form>
-                                                    @endif
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                        @if(Auth::user()->inventories->isEmpty())
-                                            <p class="text-gray-500 mt-4">{{ __('You do not have any items in your inventory.') }}</p>
+                                        @if(Auth::user()->role === 'admin')
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                @foreach($inventories as $inventory)
+                                                    <div class="bg-gray-100 p-4 rounded-lg shadow-md">
+                                                        <h4 class="text-xl font-semibold">{{ $inventory->item->name }}</h4>
+                                                        <p class="text-gray-700 mb-4">Kirim ke: {{ $inventory->phone_number }}</p>
+                                                        <p class="text-gray-500">{{ __('Dibeli pada: ') . $inventory->created_at->format('d M Y') }}</p>
+                                                        <p class="text-gray-500">{{ __('Pemilik: ') . $inventory->user->name }}</p>
+                                                        <p class="text-gray-500">
+                                                            {{ __('Status: ') }}
+                                                            <span class="{{ $inventory->redeemed ? 'text-green-500' : 'text-yellow-500' }}">
+                                                                {{ $inventory->redeemed ? 'Redeemed' : 'Pending' }}
+                                                            </span>
+                                                        </p>
+
+                                                        @if (!$inventory->redeemed && Auth::user()->role === 'admin')
+                                                            <form action="{{ route('inventory.redeemItem', $inventory->id) }}" method="POST">
+                                                                @csrf
+                                                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded mt-4">
+                                                                    {{ __('Redeem') }}
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
+
+                                                @endforeach
+                                            </div>
+                                            {{ $inventories->links() }} <!-- Tampilkan pagination -->
+                                        @else
+                                            <p class="text-gray-500 mt-4">{{ __('You do not have permission to view all inventories.') }}</p>
                                         @endif
-                                </div>
+                                    </div>
+                            </div>
                             </div>
                         </div>
                     </div>

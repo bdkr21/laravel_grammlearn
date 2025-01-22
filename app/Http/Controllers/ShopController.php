@@ -39,18 +39,11 @@ class ShopController extends Controller
         Inventory::create([
             'user_id' => $user->id,
             'item_id' => $item->id,
+            'phone_number' => $phoneNumber
         ]);
 
         $item->quantity -= 1;
         $item->save();
-
-        // Simpan data ke history_redeems
-        HistoryRedeem::create([
-            'user_id' => $user->id,
-            'item_id' => $item->id,
-            'phone_number' => $phoneNumber
-        ]);
-
         return response()->json(['success' => true, 'message' => 'Item berhasil dibeli dan nomor telepon disimpan.']);
     } else {
         return response()->json(['success' => false, 'message' => 'Poin Anda tidak mencukupi untuk membeli item ini.']);

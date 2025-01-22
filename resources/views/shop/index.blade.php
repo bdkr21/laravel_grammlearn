@@ -152,8 +152,8 @@
         return;
          }
 
-         const whatsappMessage = `Nomor telepon: ${phoneNumber}%0AItem yang dipilih: ${itemName}%0AItem ID: ${itemId}`;
-         const whatsappUrl = `https://wa.me/6281214444884?text=${whatsappMessage}`; // Ganti phone_number dengan nomor WhatsApp admin
+        //  const whatsappMessage = `Nomor telepon: ${phoneNumber}%0AItem yang dipilih: ${itemName}%0AItem ID: ${itemId}`;
+        //  const whatsappUrl = `https://wa.me/6281214444884?text=${whatsappMessage}`; // Ganti phone_number dengan nomor WhatsApp admin
 
         // Kirim data ke server dan kemudian kirim ke WhatsApp
         fetch(`/shop/buy/${itemId}`, {
@@ -168,9 +168,10 @@
             .then(data => {
                 document.getElementById('phoneModal').classList.add('hidden');
                 if (data.success) {
-                    swal("Sukses", data.message, "success").then(() => {
-                        window.location.href = whatsappUrl; // Mengarahkan ke WhatsApp setelah sukses
-                    });
+                    // swal("Sukses", data.message, "success").then(() => {
+                    //     window.location.href = whatsappUrl; // Mengarahkan ke WhatsApp setelah sukses
+                    // });
+                    swal("Sukses", data.message, "success");
                 } else {
                     swal("Error", data.message, "error");
                 }

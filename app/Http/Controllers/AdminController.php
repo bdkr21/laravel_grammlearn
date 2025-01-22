@@ -9,6 +9,8 @@ use App\Models\Item;
 use App\Models\Quiz;
 use App\Models\Course;
 use App\Models\Question;
+use App\Models\Inventory;
+use App\Models\HistoryRedeem;
 use Illuminate\View\View;
 
 class AdminController extends Controller
@@ -22,8 +24,9 @@ class AdminController extends Controller
         $items = Item::paginate(10);
         $materis = Course::paginate(10);
         $quizzes = Question::all();
+        $inventories = Inventory::with(['item', 'user'])->paginate(5); // Gunakan paginate di sini
 
-        return view('dashboard', compact('points', 'role', 'users', 'items', 'materis', 'quizzes'));
+        return view('dashboard', compact('points', 'role', 'users', 'items', 'materis', 'quizzes','inventories'));
     }
 
     public function create(): View

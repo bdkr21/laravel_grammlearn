@@ -13,18 +13,23 @@ class InventoryController extends Controller
         // Cari inventory berdasarkan ID
         $inventory = Inventory::findOrFail($inventoryId);
 
+        // Periksa apakah item sudah diredeem
+        if ($inventory->redeemed) {
+            return redirect()->route('dashboard')->with('error', 'Item ini sudah diredeem sebelumnya.');
+        }
+
+        // Tandai item sebagai diredeem
+        $inventory->update(['redeemed' => true]);
+
         // Simpan ke history redeem
         HistoryRedeem::create([
             'user_id' => $inventory->user_id,
             'item_id' => $inventory->item_id,
-            // Kamu bisa menambahkan field lain yang diperlukan, seperti 'redeemed_at'
+            // Tambahkan field lain jika diperlukan, seperti 'redeemed_at'
         ]);
 
         // Set flash message
         session()->flash('success', 'Item berhasil diredeem!');
-
-        // Hapus item dari inventory
-        $inventory->delete();
 
         // Redirect atau kirim respon
         return redirect()->route('dashboard')->with('success', 'Item berhasil di-redeem dan masuk ke history.');
