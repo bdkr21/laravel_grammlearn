@@ -26,7 +26,7 @@ Route::post('/shop/buy/{id}', [ShopController::class, 'buy'])->name('shop.buy');
 Route::get('/fetch-items', [ShopController::class, 'fetchItems'])->name('fetch-items');
 Route::post('/shop/redeem/{id}', [ShopController::class, 'redeem'])->name('shop.redeem');
 
-Route::get('/history-redeem', [HistoryRedeemController::class, 'index'])->name('history.redeem');
+Route::get('/history-redeem', [HistoryRedeemController::class, 'index'])->name(name: 'history.redeem');
 
 Route::post('/inventory/redeem/{inventoryId}', [InventoryController::class, 'redeemItem'])->name('inventory.redeemItem');
 
@@ -87,7 +87,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('items/get-items', [AdminController::class, 'getItems'])->name('items.getItems');
 
     Route::get('materi/get-items', [AdminController::class, 'getCourses'])->name('materi.getCourses');
-    Route::get('quizzes/get-items', [AdminController::class, 'getQuiz'])->name('akuganteng');
+    Route::get('quizzes/get-items', [AdminController::class, 'getQuiz'])->name('kuis.getKuis');
     Route::get('users/get-items', [AdminController::class, 'getUsers'])->name('users.getUsers');
 
 

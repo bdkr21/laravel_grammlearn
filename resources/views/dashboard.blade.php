@@ -51,38 +51,40 @@
                                             </div>
                                         @endif
                                         @if(Auth::user()->role === 'admin')
-                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                @foreach($inventories as $inventory)
-                                                    <div class="bg-gray-100 p-4 rounded-lg shadow-md">
-                                                        <h4 class="text-xl font-semibold">{{ $inventory->item->name }}</h4>
-                                                        <p class="text-gray-700 mb-4">Kirim ke: {{ $inventory->phone_number }}</p>
-                                                        <p class="text-gray-500">{{ __('Dibeli pada: ') . $inventory->created_at->format('d M Y') }}</p>
-                                                        <p class="text-gray-500">{{ __('Pemilik: ') . $inventory->user->name }}</p>
-                                                        <p class="text-gray-500">
-                                                            {{ __('Status: ') }}
-                                                            <span class="{{ $inventory->redeemed ? 'text-green-500' : 'text-yellow-500' }}">
-                                                                {{ $inventory->redeemed ? 'Redeemed' : 'Pending' }}
-                                                            </span>
-                                                        </p>
-
-                                                        @if (!$inventory->redeemed && Auth::user()->role === 'admin')
-                                                            <form action="{{ route('inventory.redeemItem', $inventory->id) }}" method="POST">
-                                                                @csrf
-                                                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded mt-4">
-                                                                    {{ __('Redeem') }}
-                                                                </button>
-                                                            </form>
+                                            @if($inventories->isEmpty() || !$inventories->contains(fn($inventory) => !$inventory->redeemed))
+                                                <p class="text-gray-500 mt-4">{{ __('Tidak ada item yang harus di-redeem.') }}</p>
+                                            @else
+                                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    @foreach($inventories as $inventory)
+                                                        @if(!$inventory->redeemed)
+                                                            <div class="bg-gray-100 p-4 rounded-lg shadow-md">
+                                                                <h4 class="text-xl font-semibold">{{ $inventory->item->name }}</h4>
+                                                                <p class="text-gray-700 mb-4">Kirim ke: {{ $inventory->phone_number }}</p>
+                                                                <p class="text-gray-500">{{ __('Dibeli pada: ') . $inventory->created_at->format('d M Y') }}</p>
+                                                                <p class="text-gray-500">{{ __('Pemilik: ') . $inventory->user->name }}</p>
+                                                                <p class="text-gray-500">
+                                                                    {{ __('Status: ') }}
+                                                                    <span class="text-yellow-500">
+                                                                        {{ 'Pending' }}
+                                                                    </span>
+                                                                </p>
+                                                                <form action="{{ route('inventory.redeemItem', $inventory->id) }}" method="POST">
+                                                                    @csrf
+                                                                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded mt-4">
+                                                                        {{ __('Redeem') }}
+                                                                    </button>
+                                                                </form>
+                                                            </div>
                                                         @endif
-                                                    </div>
-
-                                                @endforeach
-                                            </div>
-                                            {{ $inventories->links() }} <!-- Tampilkan pagination -->
+                                                    @endforeach
+                                                </div>
+                                                {{ $inventories->links() }} <!-- Tampilkan pagination -->
+                                            @endif
                                         @else
                                             <p class="text-gray-500 mt-4">{{ __('You do not have permission to view all inventories.') }}</p>
                                         @endif
                                     </div>
-                            </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -91,91 +93,6 @@
         </div>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-        const menuItems = document.querySelectorAll('.menu-item');
-        const contentArea = document.getElementById('dynamic-content');
-
-        menuItems.forEach(item => {
-            item.addEventListener('click', function (event) {
-                event.preventDefault(); // Mencegah reload halaman
-                const url = this.getAttribute('data-url'); // Ambil URL dari data attribute
-
-                // Hapus kelas 'active' dari semua menu item
-                menuItems.forEach(el => el.classList.remove('active'));
-
-                // Tambahkan kelas 'active' pada item yang diklik
-                this.classList.add('active');
-
-                fetch(url, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'text/html', // Pastikan menerima HTML
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
-                    return response.text();
-                })
-                .then(html => {
-                    contentArea.innerHTML = html; // Perbarui konten dengan HTML
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    contentArea.innerHTML = '<p class="text-red-500">Failed to load content. Please try again later.</p>';
-                });
-            });
-        });
-    });
-        function filterTable() {
-            const input = document.getElementById('search');
-            const filter = input.value.toLowerCase();
-            const table = document.querySelector('#items-table tbody');
-            if (!table) {
-                console.error('Table or tbody not found');
-                return;
-            }
-            const rows = table.getElementsByTagName('tr');
-            for (let i = 0; i < rows.length; i++) {
-                const cells = rows[i].getElementsByTagName('td');
-                let match = false;
-                for (let j = 0; j < cells.length; j++) {
-                    if (cells[j].innerText.toLowerCase().includes(filter)) {
-                        match = true;
-                        break;
-                    }
-                }
-                rows[i].style.display = match ? '' : 'none';
-            }
-        }
-        document.addEventListener('click', function (e) {
-            if (e.target.matches('.pagination a')) {
-                e.preventDefault();
-                const url = new URL(e.target.href);
-                const page = url.searchParams.get('page');
-                const modalType = e.target.closest('.modal').id.replace('-modal', '');
-                loadTable(modalType, page);
-            }
-        });
-
-        function loadTable(type, page = 1) {
-            fetch(`/${type}/get-items?page=${page}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.text();
-            })
-            .then(html => {
-                document.getElementById(`${type}-content`).innerHTML = html;
-                history.pushState(null, '', `/${type}/get-items?page=${page}`);
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
     document.addEventListener('DOMContentLoaded', function () {
         const toast = document.getElementById('toast-success');
         if (toast) {

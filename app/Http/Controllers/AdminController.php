@@ -24,7 +24,9 @@ class AdminController extends Controller
         $items = Item::paginate(10);
         $materis = Course::paginate(10);
         $quizzes = Question::all();
-        $inventories = Inventory::with(['item', 'user'])->paginate(5); // Gunakan paginate di sini
+        $inventories = Inventory::with(['item', 'user'])
+        ->where('redeemed', false) // Tambahkan filter di sini
+        ->paginate(5); // Paginasi tetap diterapkan
 
         return view('dashboard', compact('points', 'role', 'users', 'items', 'materis', 'quizzes','inventories'));
     }
@@ -103,11 +105,8 @@ class AdminController extends Controller
 
     public function getCourses(Request $request)
     {
-        if ($request->ajax()) {
-            $materis = Course::paginate(10); // Assuming you use pagination
-            return view('components.admin.materi-table', compact('materis'))->render();
-        }
-        return redirect()->route('dashboard');
+        $materis = Course::paginate(10); // Ambil data dengan pagination
+        return view('components.admin.materi-table', compact('materis'));
     }
 
     public function getQuiz(Request $request)

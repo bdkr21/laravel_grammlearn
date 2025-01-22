@@ -18,15 +18,15 @@
                 </a>
             </li>
             <li>
-                <a href="#" data-url="{{ route('profile.edit') }}" class="menu-item flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
                     <i class="fas fa-user text-gray-300 mr-3 pl-2"></i>
                     <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Profil') }}</span>
                 </a>
             </li>
             <li>
-                <a href="#" data-url="{{ route('history.redeem') }}" class="menu-item flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                <a href="{{ route('history.redeem') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
                     <i class="fas fa-history text-gray-300 mr-3 pl-2"></i>
-                    <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Riwayat Transaksi') }}</span>
+                    <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('History') }}</span>
                 </a>
             </li>
             @if(Auth::user()->role === 'admin')
@@ -40,25 +40,25 @@
                     </button>
                     <ul x-show="adminOpen" x-cloak class="mt-2 space-y-2 pl-6">
                         <li>
-                            <a href="#" data-url="{{ route('items.getItems') }}" class="menu-item flex items-center px-4 py-2 hover:bg-gray-700 rounded transition {{ Request::is('dashboard') ? 'bg-gray-700' : '' }}">
+                            <a href="{{ route('items.getItems') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
                                 <i class="fas fa-box text-gray-300 mr-3 pl-2"></i>
                                 <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Managemen Barang') }}</span>
                             </a>
                         </li>
                         <li>
-                            <a href="#" data-url="{{ route('materi.getCourses') }}" class="menu-item flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                            <a href="{{ route('materi.getCourses') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
                                 <i class="fas fa-book text-gray-300 mr-3 pl-2"></i>
                                 <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Managemen Materi') }}</span>
                             </a>
                         </li>
                         <li>
-                            <a href="#" data-url="{{ route('akuganteng') }}" class="menu-item flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                            <a href="{{ route('kuis.getKuis') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
                                 <i class="fas fa-question-circle text-gray-300 mr-3 pl-2"></i>
                                 <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Managemen Kuis') }}</span>
                             </a>
                         </li>
                         <li>
-                            <a href="#" data-url="{{ route('users.getUsers') }}" class="menu-item flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                            <a href="{{ route('users.getUsers') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
                                 <i class="fas fa-user text-gray-300 mr-3 pl-2"></i>
                                 <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Managemen User') }}</span>
                             </a>
