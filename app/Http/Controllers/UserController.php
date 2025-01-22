@@ -5,15 +5,35 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Inventory;
+use Illuminate\Support\Facades\Auth;
+
+
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function dashboard(Request $request)
     {
-        //
+        $user = Auth::user();
+        $points = $user->points;
+        $search = $request->input('search');
+
+        $inventoriesQuery = Inventory::with(['item', 'user'])->where('redeemed', false)
+                                     ->where('user_id', $user->id);
+
+        if ($search) {
+            $searchTerm = '%' . $search . '%';
+            $inventoriesQuery->whereHas('item', function ($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm);
+            });
+        }
+
+        $inventories = $inventoriesQuery->paginate(5);
+
+        return view('dashboard', compact('points', 'inventories'));
     }
 
     /**

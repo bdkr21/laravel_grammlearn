@@ -6,7 +6,9 @@
             {{ __('Dashboard') }}
         </h2>
     </x-slot> --}}
-
+    @php
+    $inventories = $inventories ?? collect(); // Tambahkan fallback di sini
+    @endphp
     <div class="flex">
         <!-- Sidebar -->
         <x-sidebar />
@@ -28,7 +30,11 @@
                         <div class="flex justify-between items-center mb-6">
                             <div>
                                 <div class="text-lg font-medium text-gray-900">
-                                    {{ Auth::user()->name }}
+                                    @if(Auth::user()->role === 'admin')
+                                        <p>Selamat datang, Admin!</p>
+                                    @else
+                                        <p>Selamat datang, {{ Auth::user()->name }}!</p>
+                                    @endif
                                 </div>
                                 <div class="text-2xl font-semibold text-gray-700">
                                     {{ __('MY POINTS') }}: <span class="ml-2">{{ $points }}</span>
@@ -63,38 +69,32 @@
                                     {{ session('success') }}
                                 </div>
                             @endif
-                            @if(Auth::user()->role === 'admin')
-                                @if($inventories->isEmpty() || !$inventories->contains(fn($inventory) => !$inventory->redeemed))
-                                    <p class="text-gray-500 mt-4">{{ __('Tidak ada item yang harus di-redeem.') }}</p>
-                                @else
-                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        @foreach($inventories as $inventory)
-                                            @if(!$inventory->redeemed)
-                                                <div class="bg-gray-100 p-4 rounded-lg shadow-md">
-                                                    <h4 class="text-xl font-semibold">{{ $inventory->item->name }}</h4>
-                                                    <p class="text-gray-700 mb-4">Kirim ke: {{ $inventory->phone_number }}</p>
-                                                    <p class="text-gray-500">{{ __('Dibeli pada: ') . $inventory->created_at->format('d M Y') }}</p>
-                                                    <p class="text-gray-500">{{ __('Pemilik: ') . $inventory->user->name }}</p>
-                                                    <p class="text-gray-500">
-                                                        {{ __('Status: ') }}
-                                                        <span class="text-yellow-500">
-                                                            {{ 'Pending' }}
-                                                        </span>
-                                                    </p>
-                                                    <form action="{{ route('inventory.redeemItem', $inventory->id) }}" method="POST">
-                                                        @csrf
-                                                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded mt-4">
-                                                            {{ __('Redeem') }}
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                    {{ $inventories->appends(['search' => request('search')])->links() }} <!-- Include search query in pagination -->
-                                @endif
+                            @if($inventories->isNotEmpty() && $inventories->contains(fn($inventory) => !$inventory->redeemed))
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    @foreach($inventories->where('redeemed', false) as $inventory)
+                                        <div class="bg-gray-100 p-4 rounded-lg shadow-md">
+                                            <h4 class="text-xl font-semibold">{{ $inventory->item->name }}</h4>
+                                            <p class="text-gray-700 mb-4">Kirim ke: {{ $inventory->phone_number }}</p>
+                                            <p class="text-gray-500">{{ __('Dibeli pada: ') . $inventory->created_at->format('d M Y') }}</p>
+                                            <p class="text-gray-500">{{ __('Pemilik: ') . $inventory->user->name }}</p>
+                                            <p class="text-gray-500">
+                                                {{ __('Status: ') }}
+                                                <span class="text-yellow-500">
+                                                    {{ 'Pending' }}
+                                                </span>
+                                            </p>
+                                            <form action="{{ route('inventory.redeemItem', $inventory->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded mt-4">
+                                                    {{ __('Redeem') }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                {{ $inventories->appends(['search' => request('search')])->links() }} <!-- Include search query in pagination -->
                             @else
-                                <p class="text-gray-500 mt-4">{{ __('You do not have permission to view all inventories.') }}</p>
+                                <p class="text-gray-500 mt-4">{{ __('Tidak ada item yang harus di-redeem.') }}</p>
                             @endif
                         </div>
                     </div>

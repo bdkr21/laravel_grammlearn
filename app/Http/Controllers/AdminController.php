@@ -20,42 +20,38 @@ class AdminController extends Controller
         $user = Auth::user();
         $role = $user->role;
         $points = $user->points;
-
-        // Ambil kata kunci pencarian
         $search = $request->input('search');
 
-        // Filter items berdasarkan pencarian
-        $items = Item::when($search, function ($query, $search) {
-            return $query->where('name', 'like', '%' . $search . '%');
-        })->paginate(10);
+        $itemsQuery = Item::query();
+        $materisQuery = Course::query();
+        $usersQuery = User::query();
+        $inventoriesQuery = Inventory::with(['item', 'user'])->where('redeemed', false);
 
-        // Filter materi berdasarkan pencarian
-        $materis = Course::when($search, function ($query, $search) {
-            return $query->where('title', 'like', '%' . $search . '%');
-        })->paginate(10);
+        if ($role !== 'admin') {
+            $inventoriesQuery->where('user_id', $user->id);
+        }
 
-        // Filter pengguna berdasarkan pencarian
-        $users = User::when($search, function ($query, $search) {
-            return $query->where('name', 'like', '%' . $search . '%');
-        })->paginate(10);
-
-        // Inventori dengan filter pencarian
-        $inventories = Inventory::with(['item', 'user'])
-            ->when($search, function ($query, $search) {
-                return $query->whereHas('item', function ($q) use ($search) {
-                    $q->where('name', 'like', '%' . $search . '%');
+        if ($search) {
+            $searchTerm = '%' . $search . '%';
+            $itemsQuery->where('name', 'like', $searchTerm);
+            $materisQuery->where('title', 'like', $searchTerm);
+            $usersQuery->where('name', 'like', $searchTerm);
+            $inventoriesQuery->where(function ($query) use ($searchTerm) {
+                $query->whereHas('item', function ($q) use ($searchTerm) {
+                    $q->where('name', 'like', $searchTerm);
                 })
-                ->orWhereHas('user', function ($q) use ($search) {
-                    $q->where('name', 'like', '%' . $search . '%');
+                ->orWhereHas('user', function ($q) use ($searchTerm) {
+                    $q->where('name', 'like', $searchTerm);
                 });
-            })
-            ->where('redeemed', false) // Tambahkan filter hanya untuk yang belum di-redeem
-            ->paginate(5);
+            });
+        }
 
-        // Semua quiz
+        $items = $itemsQuery->paginate(10);
+        $materis = $materisQuery->paginate(10);
+        $users = $usersQuery->paginate(10);
+        $inventories = $inventoriesQuery->paginate(5) ?? collect(); // Tambahkan fallback di sini
         $quizzes = Question::all();
 
-        // Kirimkan semua data ke view
         return view('dashboard', compact('points', 'role', 'users', 'items', 'materis', 'quizzes', 'inventories'));
     }
 

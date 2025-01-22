@@ -20,6 +20,7 @@ class AdminMiddleware
             return $next($request);
         }
 
-        return redirect('/'); // Redirect jika bukan admin
+        dd('Akses ditolak: bukan admin'); // Debug jika akses ditolak
+        return redirect('/');
     }
 }
