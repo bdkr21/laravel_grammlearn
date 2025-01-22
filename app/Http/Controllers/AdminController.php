@@ -15,21 +15,51 @@ use Illuminate\View\View;
 
 class AdminController extends Controller
 {
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         $user = Auth::user();
         $role = $user->role;
-        $users = User::all(); // Ambil semua user untuk ditampilkan di dashboard
-        $points = Auth::user()->points;
-        $items = Item::paginate(10);
-        $materis = Course::paginate(10);
-        $quizzes = Question::all();
-        $inventories = Inventory::with(['item', 'user'])
-        ->where('redeemed', false) // Tambahkan filter di sini
-        ->paginate(5); // Paginasi tetap diterapkan
+        $points = $user->points;
 
-        return view('dashboard', compact('points', 'role', 'users', 'items', 'materis', 'quizzes','inventories'));
+        // Ambil kata kunci pencarian
+        $search = $request->input('search');
+
+        // Filter items berdasarkan pencarian
+        $items = Item::when($search, function ($query, $search) {
+            return $query->where('name', 'like', '%' . $search . '%');
+        })->paginate(10);
+
+        // Filter materi berdasarkan pencarian
+        $materis = Course::when($search, function ($query, $search) {
+            return $query->where('title', 'like', '%' . $search . '%');
+        })->paginate(10);
+
+        // Filter pengguna berdasarkan pencarian
+        $users = User::when($search, function ($query, $search) {
+            return $query->where('name', 'like', '%' . $search . '%');
+        })->paginate(10);
+
+        // Inventori dengan filter pencarian
+        $inventories = Inventory::with(['item', 'user'])
+            ->when($search, function ($query, $search) {
+                return $query->whereHas('item', function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('user', function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%');
+                });
+            })
+            ->where('redeemed', false) // Tambahkan filter hanya untuk yang belum di-redeem
+            ->paginate(5);
+
+        // Semua quiz
+        $quizzes = Question::all();
+
+        // Kirimkan semua data ke view
+        return view('dashboard', compact('points', 'role', 'users', 'items', 'materis', 'quizzes', 'inventories'));
     }
+
+
 
     public function create(): View
     {
