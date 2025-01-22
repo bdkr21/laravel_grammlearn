@@ -83,19 +83,21 @@
                                                     {{ 'Pending' }}
                                                 </span>
                                             </p>
+                                            @if(auth()->user()->role === 'admin')
                                             <form action="{{ route('inventory.redeemItem', $inventory->id) }}" method="POST">
                                                 @csrf
                                                 <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded mt-4">
                                                     {{ __('Redeem') }}
                                                 </button>
                                             </form>
-                                        </div>
-                                    @endforeach
-                                </div>
-                                {{ $inventories->appends(['search' => request('search')])->links() }} <!-- Include search query in pagination -->
-                            @else
-                                <p class="text-gray-500 mt-4">{{ __('Tidak ada item yang harus di-redeem.') }}</p>
-                            @endif
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                            {{ $inventories->appends(['search' => request('search')])->links() }} <!-- Include search query in pagination -->
+                        @else
+                            <p class="text-gray-500 mt-4">{{ __('Tidak ada item yang harus di-redeem.') }}</p>
+                        @endif
                         </div>
                     </div>
                 </div>

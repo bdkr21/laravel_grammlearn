@@ -43,10 +43,10 @@
                     class="text-sm text-gray-600"
                 >{{ __('Saved.') }}</p>
             @endif
-            <a href="{{ route('dashboard') }}"
-            class="inline-flex items-center px-5 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-            {{ __('Back') }}
-        </a>
+            <a href="{{ auth()->user()->role === 'user' ? route('user.dashboard') : route('dashboard') }}"
+                class="inline-flex items-center px-5 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                {{ __('Back') }}
+            </a>
         </div>
     </form>
 </section>
