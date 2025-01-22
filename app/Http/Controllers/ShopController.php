@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Inventory;
 use App\Models\Item;
+use App\Models\HistoryRedeem;
 
 class ShopController extends Controller
 {
@@ -16,36 +17,46 @@ class ShopController extends Controller
     }
 
     public function buy(Request $request, $id)
-    {
-        $user = auth()->user();
-        $item = Item::findOrFail($id);
+{
+    $user = auth()->user();
+    $item = Item::findOrFail($id);
 
-        // Cek apakah quantity item cukup
-        if ($item->quantity < 1) {
-            return redirect()->back()->with('error', 'This item is out of stock.');
-        }
+    // Validasi nomor telepon
+    $request->validate([
+        'phone_number' => 'required|regex:/^08\d{8,11}$/'
+    ]);
 
-        // Cek apakah user memiliki poin yang cukup
-        if ($user->points >= $item->price) {
-            // Kurangi poin user
-            $user->points -= $item->price;
-            $user->save();
+    $phoneNumber = $request->input('phone_number');
 
-            // Simpan item ke inventory user
-            Inventory::create([
-                'user_id' => $user->id,
-                'item_id' => $item->id,
-            ]);
-
-            // Kurangi quantity item
-            $item->quantity -= 1;
-            $item->save();
-
-            return redirect()->back()->with('success', 'Item successfully purchased and added to your inventory!');
-        } else {
-            return redirect()->back()->with('error', 'You do not have enough points to purchase this item.');
-        }
+    if ($item->quantity < 1) {
+        return response()->json(['success' => false, 'message' => 'Item ini sudah habis.']);
     }
+
+    if ($user->points >= $item->price) {
+        $user->points -= $item->price;
+        $user->save();
+
+        Inventory::create([
+            'user_id' => $user->id,
+            'item_id' => $item->id,
+        ]);
+
+        $item->quantity -= 1;
+        $item->save();
+
+        // Simpan data ke history_redeems
+        HistoryRedeem::create([
+            'user_id' => $user->id,
+            'item_id' => $item->id,
+            'phone_number' => $phoneNumber
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Item berhasil dibeli dan nomor telepon disimpan.']);
+    } else {
+        return response()->json(['success' => false, 'message' => 'Poin Anda tidak mencukupi untuk membeli item ini.']);
+    }
+}
+
         public function redeem($id)
     {
         $user = auth()->user();

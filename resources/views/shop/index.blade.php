@@ -81,6 +81,26 @@
     </div>
 </div>
 
+<!-- Modal Nomor Telepon -->
+<div id="phoneModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-96 p-6">
+        <h2 class="text-xl font-bold mb-4">Masukkan Nomor Telepon</h2>
+        <form id="phoneForm">
+            <input type="text" id="phoneNumber" name="phone_number" placeholder="Contoh: 081234567890"
+                   class="w-full border border-gray-300 rounded px-4 py-2 mb-4">
+            <input type="hidden" id="itemId" name="item_id">
+            <button type="submit"
+                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+                Konfirmasi
+            </button>
+        </form>
+        <button id="closePhoneModal"
+                class="mt-4 text-gray-500 hover:text-gray-800 transition">
+            Batal
+        </button>
+    </div>
+</div>
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
@@ -91,28 +111,70 @@
     document.querySelectorAll('.buy-button').forEach(button => {
         button.addEventListener('click', async function (event) {
             event.preventDefault();
-            var form = this.closest('form');
-            var itemName = this.getAttribute('data-item-name');
+            const itemId = this.dataset.itemId;
+            const itemName = this.dataset.itemName;
 
             const willBuy = await swal({
-                title: "Are you sure?",
-                text: `Do you want to redeem ${itemName} with your points?`,
+                title: "Apakah Anda yakin?",
+                text: `Apakah Anda ingin menukarkan ${itemName} dengan poin Anda?`,
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
             });
 
             if (willBuy) {
-                form.submit();
+                // Tampilkan modal nomor telepon
+                document.getElementById('phoneModal').classList.remove('hidden');
+                document.getElementById('itemId').value = itemId;
             }
+        });
+    });
+
+    document.getElementById('closePhoneModal').addEventListener('click', () => {
+        document.getElementById('phoneModal').classList.add('hidden');
+    });
+
+    document.getElementById('phoneForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const phoneNumber = document.getElementById('phoneNumber').value;
+        const itemId = document.getElementById('itemId').value;
+
+        if (!phoneNumber.match(/^08\d{8,11}$/)) {
+            swal("Error", "Masukkan nomor telepon yang valid!", "error");
+            return;
+        }
+
+        // Kirim data ke server
+        fetch(`/shop/buy/${itemId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ phone_number: phoneNumber })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('phoneModal').classList.add('hidden');
+            if (data.success) {
+                swal("Sukses", data.message, "success").then(() => {
+                    location.reload();
+                });
+            } else {
+                swal("Error", data.message, "error");
+            }
+        })
+        .catch(error => {
+            swal("Error", "Terjadi kesalahan pada server.", "error");
         });
     });
 
     // SweetAlert untuk login atau sign up
     async function promptLoginOrSignUp() {
         const value = await swal({
-            title: 'Not logged in',
-            text: "You need to log in or sign up to redeem this item.",
+            title: 'Anda Belum masuk',
+            text: "Anda perlu masuk atau mendaftar untuk menukarkan item ini.",
             icon: 'info',
             buttons: {
                 cancel: {

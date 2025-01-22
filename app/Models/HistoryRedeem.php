@@ -12,6 +12,7 @@ class HistoryRedeem extends Model
     protected $fillable = [
         'user_id',   // Pastikan 'user_id' ada di sini
         'item_id',   // Field lain yang juga perlu diisi
+        'phone_number',   // Field lain yang juga perlu diisi
         // Tambahkan field lain sesuai kebutuhan, misalnya 'redeemed_at'
     ];
 
