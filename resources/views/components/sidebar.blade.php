@@ -1,4 +1,4 @@
-<div x-data="{ openSidebar: true }" class="flex h-screen">
+<div x-data="{ openSidebar: true, adminOpen: {{ request()->routeIs('items.getItems', 'materi.getCourses', 'kuis.getKuis', 'users.getUsers') ? 'true' : 'false' }} }" class="flex h-screen">
     <!-- Sidebar -->
     <div :class="openSidebar ? 'w-64' : 'w-16'" class="bg-gray-800 text-white h-screen flex flex-col transition-all duration-300">
         <!-- Header -->
@@ -11,26 +11,30 @@
         </div>
         <!-- Menu Items -->
         <ul class="space-y-2 flex-1 overflow-y-auto">
+            <!-- Dashboard -->
             <li>
-                <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2 rounded transition {{ request()->routeIs('dashboard') ? 'bg-gray-900' : 'hover:bg-gray-700' }}">
                     <i class="fas fa-folder text-gray-300 mr-3 pl-2"></i>
                     <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Dashboard') }}</span>
                 </a>
             </li>
+            <!-- Profil -->
             <li>
-                <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 rounded transition {{ request()->routeIs('profile.edit') ? 'bg-gray-900' : 'hover:bg-gray-700' }}">
                     <i class="fas fa-user text-gray-300 mr-3 pl-2"></i>
                     <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Profil') }}</span>
                 </a>
             </li>
+            <!-- History -->
             <li>
-                <a href="{{ route('history.redeem') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                <a href="{{ route('history.redeem') }}" class="flex items-center px-4 py-2 rounded transition {{ request()->routeIs('history.redeem') ? 'bg-gray-900' : 'hover:bg-gray-700' }}">
                     <i class="fas fa-history text-gray-300 mr-3 pl-2"></i>
                     <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('History') }}</span>
                 </a>
             </li>
+            <!-- Menu Admin -->
             @if(Auth::user()->role === 'admin')
-                <li x-data="{ adminOpen: false }">
+                <li>
                     <button @click="adminOpen = !adminOpen" class="w-full flex items-center uppercase px-4 py-2 text-gray-500 hover:bg-gray-700 rounded transition">
                         <i class="fa-regular fa-folder-open text-gray-300 mr-3 pl-2"></i>
                         <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Menu Admin') }}</span>
@@ -40,25 +44,25 @@
                     </button>
                     <ul x-show="adminOpen" x-cloak class="mt-2 space-y-2 pl-6">
                         <li>
-                            <a href="{{ route('items.getItems') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                            <a href="{{ route('items.getItems') }}" class="flex items-center px-4 py-2 rounded transition {{ request()->routeIs('items.getItems') ? 'bg-gray-900' : 'hover:bg-gray-700' }}">
                                 <i class="fas fa-box text-gray-300 mr-3 pl-2"></i>
                                 <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Managemen Barang') }}</span>
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('materi.getCourses') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                            <a href="{{ route('materi.getCourses') }}" class="flex items-center px-4 py-2 rounded transition {{ request()->routeIs('materi.getCourses') ? 'bg-gray-900' : 'hover:bg-gray-700' }}">
                                 <i class="fas fa-book text-gray-300 mr-3 pl-2"></i>
                                 <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Managemen Materi') }}</span>
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('kuis.getKuis') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                            <a href="{{ route('kuis.getKuis') }}" class="flex items-center px-4 py-2 rounded transition {{ request()->routeIs('kuis.getKuis') ? 'bg-gray-900' : 'hover:bg-gray-700' }}">
                                 <i class="fas fa-question-circle text-gray-300 mr-3 pl-2"></i>
                                 <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Managemen Kuis') }}</span>
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('users.getUsers') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                            <a href="{{ route('users.getUsers') }}" class="flex items-center px-4 py-2 rounded transition {{ request()->routeIs('users.getUsers') ? 'bg-gray-900' : 'hover:bg-gray-700' }}">
                                 <i class="fas fa-user text-gray-300 mr-3 pl-2"></i>
                                 <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Managemen User') }}</span>
                             </a>
@@ -66,12 +70,14 @@
                     </ul>
                 </li>
             @endif
+            <!-- Home -->
             <li>
-                <a href="{{ route('home') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
+                <a href="{{ route('home') }}" class="flex items-center px-4 py-2 rounded transition {{ request()->routeIs('home') ? 'bg-gray-900' : 'hover:bg-gray-700' }}">
                     <i class="fas fa-home text-gray-300 mr-3 pl-2"></i>
                     <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Home') }}</span>
                 </a>
             </li>
+            <!-- Logout -->
             <li>
                 <form method="POST" action="{{ route('logout') }}" class="flex items-center px-4 py-2 hover:bg-gray-700 rounded transition">
                     @csrf
