@@ -114,6 +114,12 @@
             const itemId = this.dataset.itemId;
             const itemName = this.dataset.itemName;
 
+            // Cek apakah itemName ada
+            if (!itemName) {
+                console.log('Item name tidak ditemukan');
+                return;
+            }
+
             const willBuy = await swal({
                 title: "Apakah Anda yakin?",
                 text: `Apakah Anda ingin menukarkan ${itemName} dengan poin Anda?`,
@@ -139,36 +145,40 @@
 
         const phoneNumber = document.getElementById('phoneNumber').value;
         const itemId = document.getElementById('itemId').value;
+        const itemName = document.querySelector(`[data-item-id="${itemId}"]`).dataset.itemName; // Mengambil itemName berdasarkan itemId
 
         if (!phoneNumber.match(/^08\d{8,11}$/)) {
-            swal("Error", "Masukkan nomor telepon yang valid!", "error");
-            return;
-        }
+        swal("Error", "Masukkan nomor telepon yang valid!", "error");
+        return;
+         }
 
-        // Kirim data ke server
+         const whatsappMessage = `Nomor telepon: ${phoneNumber}%0AItem yang dipilih: ${itemName}%0AItem ID: ${itemId}`;
+         const whatsappUrl = `https://wa.me/6281214444884?text=${whatsappMessage}`; // Ganti phone_number dengan nomor WhatsApp admin
+
+        // Kirim data ke server dan kemudian kirim ke WhatsApp
         fetch(`/shop/buy/${itemId}`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ phone_number: phoneNumber })
-        })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('phoneModal').classList.add('hidden');
-            if (data.success) {
-                swal("Sukses", data.message, "success").then(() => {
-                    location.reload();
-                });
-            } else {
-                swal("Error", data.message, "error");
-            }
-        })
-        .catch(error => {
-            swal("Error", "Terjadi kesalahan pada server.", "error");
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ phone_number: phoneNumber })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('phoneModal').classList.add('hidden');
+                if (data.success) {
+                    swal("Sukses", data.message, "success").then(() => {
+                        window.location.href = whatsappUrl; // Mengarahkan ke WhatsApp setelah sukses
+                    });
+                } else {
+                    swal("Error", data.message, "error");
+                }
+            })
+            .catch(error => {
+                swal("Error", "Terjadi kesalahan pada server.", "error");
+            });
         });
-    });
 
     // SweetAlert untuk login atau sign up
     async function promptLoginOrSignUp() {
