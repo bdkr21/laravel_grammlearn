@@ -13,8 +13,13 @@
         <ul class="space-y-2 flex-1 overflow-y-auto">
             <!-- Dashboard -->
             <li>
+                @if(Auth::user()->role === 'admin')
                 <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2 rounded transition {{ request()->routeIs('dashboard') ? 'bg-gray-900' : 'hover:bg-gray-700' }}">
                     <i class="fas fa-folder text-gray-300 mr-3 pl-2"></i>
+                @else
+                <a href="{{ route('user.dashboard') }}" class="flex items-center px-4 py-2 rounded transition {{ request()->routeIs('dashboard') ? 'bg-gray-900' : 'hover:bg-gray-700' }}">
+                    <i class="fas fa-folder text-gray-300 mr-3 pl-2"></i>
+                @endif
                     <span x-show="openSidebar" class="text-sm font-medium pl-2">{{ __('Dashboard') }}</span>
                 </a>
             </li>
